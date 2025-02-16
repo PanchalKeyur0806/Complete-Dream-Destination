@@ -10,6 +10,7 @@ const userRoutes = require("./routes/userRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const hotelRoutes = require("./routes/hotelRoutes");
 const contactRoutes = require("./routes/contactRoutes");
+const bookingRoutes = require("./routes/bookingRoutes")
 
 // ERROR HANDLING
 const globalErrorHandler = require("./controller/errController");
@@ -28,6 +29,7 @@ app.use("/api/tours", tourRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/hotel", hotelRoutes);
+app.use("/api/bookings", bookingRoutes);
 app.use("/api/contact", contactRoutes);
 
 // use this middleware for error handling
