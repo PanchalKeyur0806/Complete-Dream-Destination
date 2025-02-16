@@ -1,0 +1,516 @@
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.overlay.active {
+    display: block;
+}
+
+.user-info {
+    margin-left: 13px !important;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    padding: 20px;
+    position: fixed;
+    height: 100%;
+    transition: all 0.3s ease;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.brand {
+    font-size: 24px;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.nav-items {
+    list-style: none;
+}
+
+.nav-item {
+    margin-bottom: 10px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    color: var(--text-color);
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: var(--accent-color);
+}
+
+.nav-link i {
+    margin-right: 10px;
+    width: 20px;
+}
+
+/* Main Content Styles */
+.main-content {
+    flex: 1;
+    margin-left: 250px;
+    padding: 20px;
+    width: calc(100% - 250px);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+.menu-toggle {
+    display: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.create-button {
+    background-color: var(--accent-color);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: auto;
+}
+
+.create-button:hover {
+    background-color: #2980b9;
+}
+
+.container {
+    max-width: 100%;
+}
+
+.search-section {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.search-bar {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.package-list {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #333;
+}
+
+tr:hover {
+    background-color: #f5f5f5;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.edit-button,
+.delete-button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+}
+
+.edit-button {
+    background-color: #27ae60;
+}
+
+.edit-button:hover {
+    background-color: #219150;
+}
+
+.delete-button {
+    background-color: #e74c3c;
+}
+
+.delete-button:hover {
+    background-color: #c0392b;
+}
+
+
+/* form */
+
+.create-form {
+    display: none;
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 1000px;
+    max-width: 95%;
+    margin: 20px auto;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1001;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+/* Package.css */
+
+/* General Container */
+.package-container {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: -250px;
+    bottom: 0;
+    transition: left 0.3s ease-in-out;
+  }
+  
+  .sidebar.active {
+    left: 0;
+  }
+  
+  .sidebar .brand {
+    color: #ecf0f1;
+    padding: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .nav-items {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .nav-item {
+    margin: 10px 0;
+  }
+  
+  .nav-link {
+    color: #ecf0f1;
+    text-decoration: none;
+    padding: 10px 20px;
+    display: block;
+  }
+  
+  
+  
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+  }
+  
+  .overlay.active {
+    display: block;
+  }
+  
+  /* Main Content */
+  .main-content {
+    margin-left: 250px;
+    padding: 20px;
+    width: 100%;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .menu-toggle {
+    font-size: 30px;
+    cursor: pointer;
+  }
+  
+  .user-info {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .create-button {
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+  }
+  
+  .create-button:hover {
+    background-color: #2980b9;
+  }
+  
+  /* Form */
+  .form-container {
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    border-radius: 5px;
+  }
+  
+  .form-container label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+  }
+  
+  .form-container input,
+  .form-container textarea,
+  .form-container select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .form-container textarea {
+    height: 100px;
+  }
+  
+  .form-container button {
+    background-color: #3498db;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+    margin-top: 20px;
+  }
+  
+  .form-container button:hover {
+    background-color: #2980b9;
+  }
+  
+  /* Table */
+  .table-container {
+    margin-top: 20px;
+  }
+  
+  .search-bar {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  th {
+    background-color: #f2f2f2;
+  }
+  
+  tr:hover {
+    background-color: #f9f9f9;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .package-container {
+      flex-direction: column;
+    }
+  
+    .main-content {
+      margin-left: 0;
+    }
+  
+    .sidebar {
+      width: 100%;
+      left: -100%;
+      position: absolute;
+    }
+  
+    .sidebar.active {
+      left: 0;
+    }
+  }
+  
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    .create-form {
+        width: 95%;
+        max-height: 80vh;
+        /* Limit height to 80% of viewport height */
+        overflow-y: auto;
+        /* Enable vertical scrolling */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        position: fixed;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        /* Single column layout */
+        gap: 15px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        /* Stack buttons vertically */
+        align-items: stretch;
+        /* Make buttons full width */
+    }
+
+    .form-actions button {
+        margin-bottom: 10px;
+        /* Add space between stacked buttons */
+        width: 100%;
+        /* Full width buttons */
+    }
+}
+
+
+
+
+/* Additional improvements for very small screens */
+@media (max-width: 480px) {
+    .create-form {
+        margin-left: 10px;
+        width: 100%;
+        height: 100%;
+        max-height: 100%;
+        top: 0;
+        left: 0;
+        transform: none;
+        border-radius: 0;
+        overflow-y: auto;
+        padding-bottom: 50px;
+        /* Adds bottom space */
+    }
+
+    .form-grid {
+        gap: 10px;
+    }
+}

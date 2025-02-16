@@ -1,0 +1,255 @@
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #34495e;
+    --accent-color: #3498db;
+    --text-color: #ecf0f1;
+    --danger-color: #e74c3c;
+    --success-color: #2ecc71;
+    --warning-color: #f1c40f;
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.overlay.active {
+    display: block;
+}
+
+.card {
+    margin-top: 30px;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    padding: 20px;
+    position: fixed;
+    height: 100%;
+    transition: all 0.3s ease;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.brand {
+    font-size: 24px;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.nav-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-item {
+    margin-bottom: 10px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    color: var(--text-color);
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: var(--accent-color);
+}
+
+.nav-link i {
+    margin-right: 10px;
+    width: 20px;
+}
+
+/* Main Content Styles */
+.main-content {
+    flex: 1;
+    margin-left: 250px;
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.menu-toggle {
+    display: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Rest of your existing CSS remains the same until the media query */
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .overview-cards {
+        grid-template-columns: 1fr;
+    }
+
+
+
+    .table-container {
+        overflow-x: auto;
+        display: block;
+        width: 100%;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        display: block;
+    }
+
+    .table thead {
+        display: none;
+    }
+
+    .table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .table tr {
+        display: block;
+        border: 1px solid #ddd;
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: white;
+    }
+
+    .table td {
+        display: flex;
+        flex-direction: column;
+        align-items: end;
+        text-align: left;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        width: 100%;
+        position: relative;
+        word-break: break-word;
+    }
+
+    .table td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        display: inline-block;
+        min-width: 120px;
+        text-align: left;
+        padding-right: 10px;
+        flex-shrink: 0;
+        color: var(--primary-color);
+    }
+
+    .table td:last-child {
+        border-bottom: none;
+    }
+
+    /* Ensure text does not overlap */
+    .table td,
+    .table td::before {
+        white-space: normal;
+        /* Allow text wrapping */
+    }
+}
+
+
+@media (max-width: 468px) {
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        display: block;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        display: block;
+    }
+
+    .table thead {
+        display: none;
+    }
+
+    .table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .table tr {
+        display: block;
+        border: 1px solid #ddd;
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: white;
+    }
+
+    .table td {
+        display: flex;
+        flex-direction: column;
+        align-items: end;
+        text-align: left;
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        width: 100%;
+        position: relative;
+        word-break: break-word;
+    }
+
+    .table td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        display: inline-block;
+        min-width: 120px;
+        text-align: left;
+        padding-right: 10px;
+        flex-shrink: 0;
+        color: var(--primary-color);
+    }
+
+    .table td:last-child {
+        border-bottom: none;
+    }
+
+    .table td,
+    .table td::before {
+        white-space: normal;
+    }
+}

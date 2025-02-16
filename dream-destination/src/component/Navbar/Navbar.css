@@ -1,0 +1,164 @@
+.navbar {
+    display: flex;
+    padding: 20px 0px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar .logo {
+    width: 250px;
+}
+
+.navbar-menu {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+    color: #49557e;
+    font-size: 18px;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.navbar button {
+    background: transparent;
+    border-radius: 50px;
+    font-size: 16px;
+    padding: 10px 30px;
+    border: 1px solid tomato;
+    color: #49557e;
+    cursor: pointer;
+}
+
+.navbar button {
+    background-color: #fff4f2;
+}
+
+.navbar .active {
+    padding-bottom: 2px;
+    border-bottom: 2px solid #49557e;
+}
+
+.navbar li {
+    cursor: pointer;
+}
+
+.navbar-search-icon {
+    position: relative;
+}
+
+.navbar-search-icon .dot {
+    position: absolute;
+    min-width: 10px;
+    min-height: 10px;
+    background-color: tomato;
+    border-radius: 5px;
+    top: -8px;
+    right: -8px;
+}
+
+.closeNavbar {
+    display: none;
+}
+#navBtn{
+    display: none;
+}
+
+@media (max-width:1050px) {
+    .navbar .logo {
+        width: 140px;
+    }
+
+    .navbar-menu {
+        gap: 20px;
+        font-size: 17px;
+    }
+
+    .navbar-right {
+        gap: 30px;
+    }
+
+    .navbar-right .img {
+        width: 22px;
+    }
+
+    .navbar-right button {
+        padding: 8px 25px;
+
+    }
+}
+
+@media (max-width:900px) {
+    .navbar .logo {
+        width: 150px;
+    }
+
+    .navbar-right {
+        gap: 13px;
+    }
+
+    .navbar-right .img {
+        width: 20px;
+    }
+
+    .navbar-right button {
+        padding: 7px 20px;
+        font-size: 10px;
+
+    }
+}
+
+@media (max-width:768px) {
+    .navbar-right .icon {
+        width: 18px;
+    }
+
+    .navbar button {
+        padding: 0.7rem, 0.7rem;
+    }
+
+    .navBar {
+        position: absolute;
+        top: -500rem;
+        transform: translate(-50%);
+        left: 50%;
+        width: 80%;
+        text-align: center;
+        height: max-content;
+        background: rgb(232, 226, 226);
+        border-radius: 1rem;
+        box-shadow: 0 2px 4px rgba(2, 15, 29, 0.904);
+        z-index: 2000;
+        transition: .5s ease-in-out;
+    }
+
+    ul {
+        width: 100%;
+        margin: auto;
+        text-align: center;
+        flex-direction: column;
+    }
+
+    .activeNavbar {
+        top: 7rem;
+    }
+
+    .closeNavbar {
+        display: block;
+    }
+
+    .navIcon {
+        margin-top: -24rem;
+        margin-left: 10rem;
+        font-size: 2rem;
+    }
+    #navBtn{
+        display: block;
+    }
+    
+
+
+}

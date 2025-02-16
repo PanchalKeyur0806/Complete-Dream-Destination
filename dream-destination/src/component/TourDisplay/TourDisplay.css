@@ -1,0 +1,75 @@
+.travel-list {
+    display: grid;
+    place-items: center;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    width: 100%;
+    height: 100%;
+
+    border-radius: 2rem;
+
+}
+
+.destination {
+    border-radius: 1rem;
+}
+
+.imageDiv {
+    height: 50%;
+    width: 100%;
+    overflow: hidden;
+
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+
+    img {
+        width: 100%;
+        height: 50%;
+        aspect-ratio: 1/2;
+        object-fit: cover;
+    }
+
+
+
+
+
+}
+
+.card-text {
+    font-size: clamp(1vw, 0.3043rem + 3.4783vw, 0.8rem);
+
+}
+
+.Btn {
+    background-color: #fca744;
+    color: #fff;
+}
+
+#locationIcon {
+    color: #fca744;
+}
+
+
+
+.card {
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
+    border: none;
+
+    transition: transform 0.3s, box-shadow 0.3s;
+
+
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+
+@media screen and (max-width:867px) {
+    .travel-list {
+        grid-template-columns: repeat(1, 1fr);
+
+    }
+
+}
