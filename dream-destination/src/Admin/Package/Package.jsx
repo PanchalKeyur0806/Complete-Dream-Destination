@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Added missing import
 import { Link } from "react-router-dom";
 import "./Package.css";
 
 const Package = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [packages, setPackages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
     package_name: "",
     package_description: "",
@@ -33,6 +36,25 @@ const Package = () => {
     });
   };
 
+  useEffect(() => {
+    fetchPackages();
+  }, []);
+
+  const fetchPackages = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/tours");
+      if (!response.ok) {
+        throw new Error("Failed to fetch packages");
+      }
+      const data = await response.json();
+      setPackages(data.tours || []); // Ensure correct response structure
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
     setFormData({ ...formData, [name]: type === "file" ? files[0] : value });
@@ -41,31 +63,58 @@ const Package = () => {
   return (
     <div className="package-container">
       {/* Overlay to close sidebar/form */}
-      { (isSidebarOpen || isFormOpen) && (
-        <div className="overlay" onClick={() => {
-          setIsSidebarOpen(false);
-          setIsFormOpen(false);
-        }}></div>
+      {(isSidebarOpen || isFormOpen) && (
+        <div
+          className="overlay"
+          onClick={() => {
+            setIsSidebarOpen(false);
+            setIsFormOpen(false);
+          }}
+        ></div>
       )}
 
       {/* Sidebar */}
       <aside className={`sidebar ${isSidebarOpen ? "active" : ""}`}>
         <div className="brand">Travel Admin</div>
         <ul className="nav-items">
-          <li className="nav-item"><Link to="/admin" className="nav-link">Overview</Link></li>
-          <li className="nav-item"><Link to="/user" className="nav-link">Manage Users</Link></li>
-          <li className="nav-item"><Link to="/package" className="nav-link">Packages</Link></li>
-          <li className="nav-item"><Link to="/payment" className="nav-link">Payments</Link></li>
-          <li className="nav-item"><Link to="/feedback" className="nav-link">Feedback</Link></li>
+          <li className="nav-item">
+            <Link to="/admin" className="nav-link">
+              Overview
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/user" className="nav-link">
+              Manage Users
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/package" className="nav-link">
+              Packages
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/payment" className="nav-link">
+              Payments
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/feedback" className="nav-link">
+              Feedback
+            </Link>
+          </li>
         </ul>
       </aside>
 
       {/* Main Content */}
       <main className="main-content">
         <div className="header">
-          <div className="menu-toggle" onClick={toggleSidebar}>☰</div>
+          <div className="menu-toggle" onClick={toggleSidebar}>
+            ☰
+          </div>
           <div className="user-info">Admin</div>
-          <button className="create-button" onClick={toggleForm}>Create Package</button>
+          <button className="create-button" onClick={toggleForm}>
+            Create Package
+          </button>
         </div>
 
         {/* Form */}
@@ -140,34 +189,63 @@ const Package = () => {
             />
 
             <button onClick={() => alert("Package Created!")}>Submit</button>
-            <button onClick={toggleForm} className="close-button">Close</button>
+            <button onClick={toggleForm} className="close-button">
+              Close
+            </button>
           </div>
         )}
 
         {/* Search Bar */}
-        <input type="text" className="search-bar" placeholder="Search packages..." />
+        <input
+          type="text"
+          className="search-bar"
+          placeholder="Search packages..."
+        />
+
+        {/* Display Loading and Error Messages */}
+        {loading && <p>Loading packages...</p>}
+        {error && <p className="error">{error}</p>}
 
         {/* Table */}
-        <table>
-          <thead>
-            <tr>
-              <th>Package ID</th>
-              <th>Package Name</th>
-              <th>Duration</th>
-              <th>Price</th>
-              <th>Discount</th>
-              <th>Rating</th>
-              <th>Total Ratings</th>
-              <th>Created Date</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Review</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          {/* Add rows dynamically here */}
-        </table>
+        {!loading && !error && packages.length > 0 ? (
+          <table>
+            <thead>
+              <tr>
+                <th>Package ID</th>
+                <th>Package Name</th>
+                <th>Duration</th>
+                <th>Price</th>
+                <th>Discount</th>
+                <th>Rating</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {packages.map((pkg) => (
+                <tr key={pkg._id}>
+                  <td data-label="Package ID">{pkg._id}</td>
+                  <td data-label="Package Name">{pkg.name}</td>
+                  <td data-label="Duration">{pkg.duration} days</td>
+                  <td data-label="Price">${pkg.price}</td>
+                  <td data-label="Discount">${pkg.priceDiscount}</td>
+                  <td data-label="Rating">{pkg.ratingAverage || "N/A"}</td>
+                  <td data-label="Status">
+                    <span className={`status-badge ${pkg.status}`}>
+                      {pkg.status ? "Active" : "Not Active"}
+                    </span>
+                  </td>
+                  <td data-label="Actions">
+                    <button className="edit-button">Edit</button>
+                    <button className="delete-button">Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          !loading && <p>No packages found.</p>
+        )}
       </main>
     </div>
   );

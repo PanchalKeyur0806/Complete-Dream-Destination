@@ -78,6 +78,10 @@ const tourSchema = mongoose.Schema(
       type: Date,
       required: [true, "Tour must have end Date"],
     },
+    status: {
+      type: Boolean,
+      default: true,
+    },
   },
   {
     toJSON: { virtuals: true },
