@@ -55,6 +55,20 @@ const Package = () => {
     }
   };
 
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/tours/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to delete package");
+      }
+      setPackages(packages.filter((pkg) => pkg._id !== id));
+    } catch (err) {
+      console.error("Error deleting package:", err);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
     setFormData({ ...formData, [name]: type === "file" ? files[0] : value });
@@ -237,7 +251,12 @@ const Package = () => {
                   </td>
                   <td data-label="Actions">
                     <button className="edit-button">Edit</button>
-                    <button className="delete-button">Delete</button>
+                    <button
+                      className="delete-button"
+                      onClick={() => handleDelete(pkg._id)}
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}
