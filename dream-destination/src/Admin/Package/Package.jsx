@@ -56,15 +56,26 @@ const Package = () => {
   };
 
   const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this package?"
+    );
+    if (!confirmDelete) return; // If user clicks "Cancel", exit function
+
     try {
       const response = await fetch(`http://localhost:8000/api/tours/${id}`, {
         method: "DELETE",
       });
+
       if (!response.ok) {
         throw new Error("Failed to delete package");
       }
-      setPackages(packages.filter((pkg) => pkg._id !== id));
+
+      alert("Package deleted successfully!");
+      setPackages((prevPackages) =>
+        prevPackages.filter((pkg) => pkg._id !== id)
+      );
     } catch (err) {
+      alert(`Error deleting package: ${err.message}`); // Show error message in alert box
       console.error("Error deleting package:", err);
     }
   };
@@ -228,9 +239,11 @@ const Package = () => {
                 <th>Package ID</th>
                 <th>Package Name</th>
                 <th>Duration</th>
+                <th>Max Group Size</th>
                 <th>Price</th>
                 <th>Discount</th>
                 <th>Rating</th>
+                <th>Rating Quality</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
@@ -241,9 +254,11 @@ const Package = () => {
                   <td data-label="Package ID">{pkg._id}</td>
                   <td data-label="Package Name">{pkg.name}</td>
                   <td data-label="Duration">{pkg.duration} days</td>
+                  <td data-label="Duration">{pkg.maxGroupSize}</td>
                   <td data-label="Price">${pkg.price}</td>
                   <td data-label="Discount">${pkg.priceDiscount}</td>
                   <td data-label="Rating">{pkg.ratingAverage || "N/A"}</td>
+                  <td data-label="Rating">{pkg.ratingQuantity}</td>
                   <td data-label="Status">
                     <span className={`status-badge ${pkg.status}`}>
                       {pkg.status ? "Active" : "Not Active"}
