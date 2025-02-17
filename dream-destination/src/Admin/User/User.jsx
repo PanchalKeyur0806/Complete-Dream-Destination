@@ -102,10 +102,6 @@ function User() {
                   <th>User ID</th>
                   <th>Name</th>
                   <th>Email</th>
-                  <th>Package</th>
-                  <th>Payment</th>
-                  <th>Start Date</th>
-                  <th>End Date</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -113,27 +109,23 @@ function User() {
                 {users.length > 0 ? (
                   users.map((user) => (
                     <tr key={user.id}>
-                      <td>{user.id}</td>
-                      <td>{user.name}</td>
-                      <td>{user.email}</td>
-                      <td>{user.package || "N/A"}</td>
-                      <td>${user.payment || "0.00"}</td>
-                      <td>{user.startDate || "N/A"}</td>
-                      <td>{user.endDate || "N/A"}</td>
+                      <td data-label="User ID">{user._id}</td>
+                      <td data-label="Name">{user.name}</td>
+                      <td data-label="Email">{user.email}</td>
                       <td
+                        data-label="Status"
                         className={
-                          user.status === "Active"
-                            ? "status-active"
-                            : "status-inactive"
+                          user.active ? "status-active" : "status-inactive"
                         }
                       >
-                        {user.status}
+                        {user.active ? "Active" : "Not Active"}
+                        {user.active}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="8">No users found.</td>
+                    <td colSpan="4">No users found.</td>
                   </tr>
                 )}
               </tbody>

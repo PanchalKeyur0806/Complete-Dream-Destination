@@ -172,15 +172,12 @@ tr:hover {
     font-weight: bold;
 }
 
-.status-expired {
+.status-inactive {
     color: #dc3545;
     font-weight: bold;
 }
 
-.status-pending {
-    color: #ffc107;
-    font-weight: bold;
-}
+
 
 @media (max-width: 768px) {
     .sidebar {
@@ -206,5 +203,39 @@ tr:hover {
 
     .customer-info {
         grid-template-columns: 1fr;
+    }
+
+    table {
+        border: 0;
+    }
+
+    table thead {
+        display: none;
+    }
+
+    table tr {
+        margin-bottom: 10px;
+        display: block;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    table td {
+        display: block;
+        text-align: right;
+        padding: 12px;
+        position: relative;
+        border-bottom: 1px solid #ddd;
+    }
+
+    table td:last-child {
+        border-bottom: 0;
+    }
+
+    table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 12px;
+        font-weight: bold;
     }
 }
