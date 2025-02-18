@@ -29,8 +29,8 @@ routes
     tourController.updateTour
   )
   .delete(
-    // authController.protect,
-    // authController.restrictTo("admin"),
+    authController.protect,
+    authController.restrictTo("admin"),
     tourController.deleteTour
   );
 

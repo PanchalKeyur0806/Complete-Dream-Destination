@@ -63,8 +63,23 @@
 .closeNavbar {
     display: none;
 }
-#navBtn{
+
+#navBtn {
     display: none;
+}
+
+.navbar-right button {
+    background-color: #ff4d4d;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.navbar-right button:hover {
+    background-color: #e04e4e;
+    /* Darker red */
 }
 
 @media (max-width:1050px) {
@@ -155,10 +170,11 @@
         margin-left: 10rem;
         font-size: 2rem;
     }
-    #navBtn{
+
+    #navBtn {
         display: block;
     }
-    
+
 
 
 }

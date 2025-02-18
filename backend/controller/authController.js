@@ -38,6 +38,19 @@ exports.tourGuide = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.me = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.user.id).select("-password");
+
+  if (!user) {
+    return next(new AppError("There is not user found", 400));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: user,
+  });
+});
+
 // sign up users
 // for normal users
 exports.signUp = catchAsync(async (req, res, next) => {
@@ -52,7 +65,7 @@ exports.signUp = catchAsync(async (req, res, next) => {
   const token = signToken(user._id);
 
   res.cookie("jwt", token, {
-    httpOnly: true,
+    httpOnly: false,
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
@@ -97,6 +110,11 @@ exports.login = catchAsync(async (req, res, next) => {
       user,
     },
   });
+});
+
+exports.logout = catchAsync(async (req, res, next) => {
+  res.cookie("jwt", "", { httpOnly: false, expires: new Date(0) });
+  res.status(200).json({ message: "Logged out successfully" });
 });
 
 // protect routes
