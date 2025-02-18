@@ -8,12 +8,15 @@ const Feedback = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  // New state for modal
+  const [showModal, setShowModal] = useState(false);
+  const [selectedFeedback, setSelectedFeedback] = useState(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:8000/api/users/me", {
-      credentials: "include", // If using cookies for authentication
+      credentials: "include",
     })
       .then((response) => {
         if (!response.ok) throw new Error("Failed to fetch user data");
@@ -23,7 +26,7 @@ const Feedback = () => {
         if (data.data && data.data.role === "admin") {
           setIsAdmin(true);
         } else {
-          navigate("/"); // Redirect non-admin users
+          navigate("/");
         }
       })
       .catch((error) => console.error("Error fetching user data:", error));
@@ -34,7 +37,7 @@ const Feedback = () => {
 
     fetch("http://localhost:8000/api/reviews", {
       method: "GET",
-      credentials: "include", // Send cookies for authentication
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -46,15 +49,26 @@ const Feedback = () => {
         return response.json();
       })
       .then((data) => {
-        console.log("Review is: ", data.data);
-        setFeedbacks(data.data); // FIX: Setting correct state
+        setFeedbacks(data.data);
       })
       .catch((error) => {
         console.error("Error fetching feedback:", error);
         setError(error.message);
       })
-      .finally(() => setLoading(false)); // FIX: Ensure loading state is updated
+      .finally(() => setLoading(false));
   }, [isAdmin]);
+
+  // Handler for opening the modal
+  const handleViewFeedback = (feedback) => {
+    setSelectedFeedback(feedback);
+    setShowModal(true);
+  };
+
+  // Handler for closing the modal
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedFeedback(null);
+  };
 
   return isAdmin ? (
     <>
@@ -144,7 +158,10 @@ const Feedback = () => {
                       </td>
                       <td data-label="Actions">
                         <div className="action-buttons">
-                          <button className="edit-button view-feedback">
+                          <button
+                            className="edit-button view-feedback"
+                            onClick={() => handleViewFeedback(feedback)}
+                          >
                             View
                           </button>
                           <button className="delete-button">Delete</button>
@@ -160,6 +177,54 @@ const Feedback = () => {
               </tbody>
             </table>
           )}
+        </div>
+
+        {/* Feedback View Modal */}
+        <div className={`feedback-modal ${showModal ? "show" : ""}`}>
+          <div className="feedback-modal-content">
+            {selectedFeedback && (
+              <>
+                <div className="modal-header">
+                  <h3>Feedback Details</h3>
+                  <button className="modal-close" onClick={handleCloseModal}>
+                    ×
+                  </button>
+                </div>
+                <div className="feedback-detail">
+                  <label>User:</label>
+                  <p>{selectedFeedback.user.name}</p>
+                </div>
+                <div className="feedback-detail">
+                  <label>Package:</label>
+                  <p>{selectedFeedback.tour.name}</p>
+                </div>
+                <div className="feedback-detail">
+                  <label>Rating:</label>
+                  <p>{selectedFeedback.rating}/5</p>
+                </div>
+                <div className="feedback-detail">
+                  <label>Feedback:</label>
+                  <p>{selectedFeedback.review}</p>
+                </div>
+                <div className="feedback-detail">
+                  <label>Date:</label>
+                  <p>
+                    {new Date(
+                      selectedFeedback.createdAtIst
+                    ).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    className="btn btn-secondary"
+                    onClick={handleCloseModal}
+                  >
+                    Close
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </main>
     </>
