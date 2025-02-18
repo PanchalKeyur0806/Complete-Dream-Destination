@@ -30,6 +30,8 @@ const formatReviews = (review) => {
     createdAtIst: moment(review.createdAt)
       .tz("Asia/Kolkata")
       .format("YYYY-MM-DD HH:mm:ss"),
+    userName: review.user?.name,
+    tourName: review.tour?.name,
   };
 };
 

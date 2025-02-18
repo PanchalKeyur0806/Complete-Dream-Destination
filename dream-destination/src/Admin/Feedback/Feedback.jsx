@@ -1,23 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Feedback.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Feedback = () => {
   const [isActive, setIsActive] = useState(false);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  const toggleMenu = () => {
-    setIsActive(!isActive);
-  };
+  const navigate = useNavigate();
 
-  const closeMenu = () => {
-    setIsActive(false);
-  };
+  useEffect(() => {
+    fetch("http://localhost:8000/api/users/me", {
+      credentials: "include", // If using cookies for authentication
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to fetch user data");
+        return response.json();
+      })
+      .then((data) => {
+        if (data.data && data.data.role === "admin") {
+          setIsAdmin(true);
+        } else {
+          navigate("/"); // Redirect non-admin users
+        }
+      })
+      .catch((error) => console.error("Error fetching user data:", error));
+  }, [navigate]);
 
-  return (
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    fetch("http://localhost:8000/api/reviews", {
+      method: "GET",
+      credentials: "include", // Send cookies for authentication
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch feedbacks");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Review is: ", data.data);
+        setFeedbacks(data.data); // FIX: Setting correct state
+      })
+      .catch((error) => {
+        console.error("Error fetching feedback:", error);
+        setError(error.message);
+      })
+      .finally(() => setLoading(false)); // FIX: Ensure loading state is updated
+  }, [isAdmin]);
+
+  return isAdmin ? (
     <>
       <div
         className={`overlay ${isActive ? "active" : ""}`}
-        onClick={closeMenu}
+        onClick={() => setIsActive(false)}
       ></div>
 
       <aside className={`sidebar ${isActive ? "active" : ""}`}>
@@ -58,7 +101,7 @@ const Feedback = () => {
 
       <main className="main-content">
         <div className="header">
-          <div className="menu-toggle" onClick={toggleMenu}>
+          <div className="menu-toggle" onClick={() => setIsActive(!isActive)}>
             <i className="fas fa-bars"></i>
           </div>
           <div className="user-info">
@@ -69,56 +112,58 @@ const Feedback = () => {
 
         <div className="table-container">
           <h2>Feedbacks</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Feedback ID</th>
-                <th>User</th>
-                <th>Package Name</th>
-                <th>Feedback</th>
-                <th>Rating</th>
-                <th>Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                data-feedback-id="FB001"
-                data-user-name="John Doe"
-                data-user-email="john.doe@example.com"
-                data-package="Luxury Beach Package"
-                data-full-feedback="Amazing experience, highly recommended!"
-                data-rating="5"
-                data-date="2025-01-15"
-              >
-                <td data-label="Feedback ID">FB001</td>
-                <td data-label="User">John Doe</td>
-                <td data-label="Package Name">Luxury Beach Package</td>
-                <td data-label="Feedback">
-                  Amazing experience, highly recommended!
-                </td>
-                <td data-label="Rating">5/5</td>
-                <td data-label="Date">2025-01-15</td>
-                <td data-label="Actions">
-                  <div className="action-buttons">
-                    <button className="edit-button view-feedback">View</button>
-                    <button className="delete-button">Delete</button>
-                  </div>
-                </td>
-              </tr>
-              {/* Other table rows remain the same */}
-            </tbody>
-          </table>
+
+          {loading ? (
+            <p>Loading feedbacks...</p>
+          ) : error ? (
+            <p className="error">{error}</p>
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>Feedback ID</th>
+                  <th>User</th>
+                  <th>Package Name</th>
+                  <th>Feedback</th>
+                  <th>Rating</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {feedbacks.length > 0 ? (
+                  feedbacks.map((feedback) => (
+                    <tr key={feedback._id}>
+                      <td data-label="Feedback ID">{feedback._id}</td>
+                      <td data-label="User">{feedback.user.name}</td>
+                      <td data-label="Package Name">{feedback.tour.name}</td>
+                      <td data-label="Feedback">{feedback.review}</td>
+                      <td data-label="Rating">{feedback.rating}/5</td>
+                      <td data-label="Date">
+                        {new Date(feedback.createdAtIst).toLocaleDateString()}
+                      </td>
+                      <td data-label="Actions">
+                        <div className="action-buttons">
+                          <button className="edit-button view-feedback">
+                            View
+                          </button>
+                          <button className="delete-button">Delete</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="7">No feedbacks available</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
       </main>
-
-      <div className="feedback-modal">
-        <div className="feedback-modal-content">
-          {/* Modal content remains the same */}
-        </div>
-      </div>
     </>
-  );
+  ) : null;
 };
 
 export default Feedback;
