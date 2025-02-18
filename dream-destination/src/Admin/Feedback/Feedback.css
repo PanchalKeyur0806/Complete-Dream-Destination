@@ -21,10 +21,8 @@
     padding: 20px;
     position: fixed;
     height: 100%;
-    /* Changed to 100% */
     transition: all 0.3s ease;
     overflow-y: auto;
-    /* Add scrolling if needed */
 }
 
 .brand {
