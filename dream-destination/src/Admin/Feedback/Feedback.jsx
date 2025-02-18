@@ -8,9 +8,10 @@ const Feedback = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  // New state for modal
   const [showModal, setShowModal] = useState(false);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [feedbackToDelete, setFeedbackToDelete] = useState(null);
 
   const navigate = useNavigate();
 
@@ -58,13 +59,46 @@ const Feedback = () => {
       .finally(() => setLoading(false));
   }, [isAdmin]);
 
-  // Handler for opening the modal
+  const handleDeleteFeedback = (feedback) => {
+    setFeedbackToDelete(feedback);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    fetch(`http://localhost:8000/api/reviews/${feedbackToDelete._id}`, {
+      method: "DELETE",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to delete feedback");
+        }
+        setFeedbacks((prevFeedbacks) =>
+          prevFeedbacks.filter((feedback) => feedback._id !== feedbackToDelete._id)
+        );
+        alert("Feedback deleted successfully");
+        setShowDeleteModal(false);
+      })
+      .catch((error) => {
+        console.error("Error deleting feedback:", error);
+        alert("Error deleting feedback");
+        setShowDeleteModal(false);
+      });
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setFeedbackToDelete(null);
+  };
+
   const handleViewFeedback = (feedback) => {
     setSelectedFeedback(feedback);
     setShowModal(true);
   };
 
-  // Handler for closing the modal
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedFeedback(null);
@@ -164,7 +198,12 @@ const Feedback = () => {
                           >
                             View
                           </button>
-                          <button className="delete-button">Delete</button>
+                          <button
+                            className="delete-button"
+                            onClick={() => handleDeleteFeedback(feedback)}
+                          >
+                            Delete
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -209,9 +248,7 @@ const Feedback = () => {
                 <div className="feedback-detail">
                   <label>Date:</label>
                   <p>
-                    {new Date(
-                      selectedFeedback.createdAtIst
-                    ).toLocaleDateString()}
+                    {new Date(selectedFeedback.createdAtIst).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="modal-footer">
@@ -226,6 +263,28 @@ const Feedback = () => {
             )}
           </div>
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="delete-modal">
+            <div className="delete-modal-content">
+              <div className="modal-header">
+                <h3>Are you sure you want to delete this feedback?</h3>
+                <button className="modal-close" onClick={cancelDelete}>
+                  ×
+                </button>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={cancelDelete}>
+                  Cancel
+                </button>
+                <button className="btn btn-danger" onClick={confirmDelete}>
+                  Yes, Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </>
   ) : null;
