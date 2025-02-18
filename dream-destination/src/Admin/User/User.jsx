@@ -1,18 +1,54 @@
 import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./User.css";
-import { Link } from "react-router-dom";
 
 function User() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [users, setUsers] = useState([]); // State to store fetched users
+  const [users, setUsers] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const navigate = useNavigate();
 
-  // Fetch users from API
+  // Fetch user role
   useEffect(() => {
-    fetch("http://localhost:8000/api/users")
+    fetch("http://localhost:8000/api/users/me", {
+      credentials: "include", // If using cookies for authentication
+    })
       .then((response) => response.json())
-      .then((data) => setUsers(data.data.users)) // Assuming API response follows the format you shared
-      .catch((error) => console.error("Error fetching users:", error));
-  }, []);
+      .then((data) => {
+        if (data.data && data.data.role === "admin") {
+          setIsAdmin(true);
+        } else {
+          navigate("/"); // Redirect non-admin users
+        }
+      })
+      .catch((error) => console.error("Error fetching user data:", error));
+  }, [navigate]);
+
+  // Fetch users only if the user is an admin
+  useEffect(() => {
+    if (isAdmin) {
+      fetch("http://localhost:8000/api/users", {
+        method: "GET",
+        credentials: "include", // Send cookies for authentication
+        headers: {
+          "Content-Type": "application/json",
+          // If using JWT authentication, include this header:
+          // "Authorization": `Bearer ${localStorage.getItem("token")}`
+        },
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to fetch users");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          setUsers(data.data.users);
+          console.log("Data of all users:", data.data.users);
+        })
+        .catch((error) => console.error("Error fetching users:", error));
+    }
+  }, [isAdmin]);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -24,13 +60,11 @@ function User() {
 
   return (
     <>
-      {/* Overlay for closing sidebar on small screens */}
       <div
         className={`overlay ${sidebarOpen ? "active" : ""}`}
         onClick={closeSidebar}
       ></div>
 
-      {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? "active" : ""}`}>
         <div className="brand">Travel Admin</div>
         <ul className="nav-items">
@@ -62,7 +96,6 @@ function User() {
         </ul>
       </aside>
 
-      {/* Main Content */}
       <main className="main-content">
         <div className="header">
           <div className="menu-toggle" onClick={toggleSidebar}>
@@ -74,63 +107,45 @@ function User() {
         </div>
 
         <div className="container">
-          <div className="search-section">
-            <div className="customer-info">
-              <div className="info-field">
-                <label>Customer Name</label>
-                <input type="text" placeholder="Enter customer name" />
-              </div>
-              <div className="info-field">
-                <label>Customer Email</label>
-                <input type="email" placeholder="Enter customer email" />
-              </div>
-              <div className="info-field">
-                <label>Start Date</label>
-                <input type="date" />
-              </div>
-              <div className="info-field">
-                <label>End Date</label>
-                <input type="date" />
-              </div>
-            </div>
-          </div>
-
-          <div className="users-list">
-            <table>
-              <thead>
-                <tr>
-                  <th>User ID</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.length > 0 ? (
-                  users.map((user) => (
-                    <tr key={user.id}>
-                      <td data-label="User ID">{user._id}</td>
-                      <td data-label="Name">{user.name}</td>
-                      <td data-label="Email">{user.email}</td>
-                      <td
-                        data-label="Status"
-                        className={
-                          user.active ? "status-active" : "status-inactive"
-                        }
-                      >
-                        {user.active ? "Active" : "Not Active"}
-                        {user.active}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
+          {isAdmin ? (
+            <div className="users-list">
+              <table>
+                <thead>
                   <tr>
-                    <td colSpan="4">No users found.</td>
+                    <th>User ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {users.length > 0 ? (
+                    users.map((user) => (
+                      <tr key={user._id}>
+                        <td data-label="User ID">{user._id}</td>
+                        <td data-label="Name">{user.name}</td>
+                        <td data-label="Email">{user.email}</td>
+                        <td
+                          data-label="Status"
+                          className={
+                            user.active ? "status-active" : "status-inactive"
+                          }
+                        >
+                          {user.active ? "Active" : "Not Active"}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4">No users found.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <h2>Access Denied</h2>
+          )}
         </div>
       </main>
     </>
