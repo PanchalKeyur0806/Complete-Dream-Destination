@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"; // Added missing import
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./Package.css";
 
@@ -21,6 +21,8 @@ const Package = () => {
   });
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  const closeSidebar = () => setIsSidebarOpen(false);
+
   const toggleForm = () => {
     setIsFormOpen(!isFormOpen);
     setFormData({
@@ -37,8 +39,50 @@ const Package = () => {
   };
 
   useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setIsSidebarOpen(false); // Automatically close the sidebar on larger screens
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
     fetchPackages();
   }, []);
+
+  // Close sidebar when clicking outside on mobile
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Only apply on mobile screens
+      if (window.innerWidth <= 768 && isSidebarOpen) {
+        const sidebar = document.querySelector(".sidebar");
+        const menuToggle = document.querySelector(".menu-toggle");
+
+        // Check if click is outside sidebar and not on the menu toggle
+        if (
+          sidebar &&
+          !sidebar.contains(event.target) &&
+          menuToggle &&
+          !menuToggle.contains(event.target)
+        ) {
+          setIsSidebarOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [isSidebarOpen]);
 
   const fetchPackages = async () => {
     try {
@@ -85,49 +129,83 @@ const Package = () => {
     setFormData({ ...formData, [name]: type === "file" ? files[0] : value });
   };
 
+  // Function to close sidebar and form
+  const handleOverlayClick = (e) => {
+    // Stop propagation to prevent other click handlers from firing
+    e.stopPropagation();
+    setIsSidebarOpen(false);
+    setIsFormOpen(false);
+  };
+
   return (
     <div className="package-container">
       {/* Overlay to close sidebar/form */}
       {(isSidebarOpen || isFormOpen) && (
         <div
           className="overlay"
-          onClick={() => {
-            setIsSidebarOpen(false);
-            setIsFormOpen(false);
+          onClick={handleOverlayClick}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            zIndex: 999, // Ensure overlay is above other elements but below sidebar
           }}
         ></div>
       )}
 
       {/* Sidebar */}
-      <aside className={`sidebar ${isSidebarOpen ? "active" : ""}`}>
+      <aside
+        className={`sidebar ${isSidebarOpen ? "active" : ""}`}
+        style={{ zIndex: 1000 }} // Ensure sidebar is above overlay
+      >
         <div className="brand">Travel Admin</div>
         <ul className="nav-items">
           <li className="nav-item">
-            <Link to="/admin" className="nav-link">
+            <Link to="/admin" className="nav-link" onClick={closeSidebar}>
               Overview
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/user" className="nav-link">
+            <Link to="/user" className="nav-link" onClick={closeSidebar}>
               Manage Users
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/package" className="nav-link">
+            <Link to="/package" className="nav-link" onClick={closeSidebar}>
               Packages
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/payment" className="nav-link">
+            <Link to="/payment" className="nav-link" onClick={closeSidebar}>
               Payments
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/feedback" className="nav-link">
+            <Link to="/feedback" className="nav-link" onClick={closeSidebar}>
               Feedback
             </Link>
           </li>
         </ul>
+        {/* Close button specifically for mobile */}
+        {window.innerWidth <= 768 && (
+          <button
+            onClick={closeSidebar}
+            style={{
+              position: "absolute",
+              top: "10px",
+              right: "10px",
+              background: "none",
+              border: "none",
+              fontSize: "20px",
+              cursor: "pointer",
+            }}
+          >
+            ✖
+          </button>
+        )}
       </aside>
 
       {/* Main Content */}

@@ -326,6 +326,7 @@ tr:hover {
 }
 
 .create-button {
+  width: 200px;
   padding: 10px 20px;
   background-color: #3498db;
   color: white;
@@ -441,11 +442,24 @@ tr:hover {
 
 @media (max-width: 768px) {
   .sidebar {
-    transform: translateX(-100%);
+    position: fixed;
+    top: 0;
+    left: -250px;
+    /* Keep it off-screen initially */
+    width: 250px;
+    height: 100%;
+    background-color: #333;
+    z-index: 1000;
+    transition: left 0.3s ease-in-out;
   }
 
   .sidebar.active {
-    transform: translateX(0);
+    left: 0;
+    /* Bring it into view when active */
+  }
+
+  .overlay.active {
+    display: block;
   }
 
   .main-content {
