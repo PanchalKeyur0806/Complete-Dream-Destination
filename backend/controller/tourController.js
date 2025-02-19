@@ -38,51 +38,66 @@ exports.getTour = catchAsync(async (req, res, next) => {
 exports.uploadImages = upload.single("imageCover");
 // create Tour
 exports.createTour = catchAsync(async (req, res, next) => {
-  const {
-    name,
-    duration,
-    maxGroupSize,
-    location,
-    price,
-    priceDiscount,
-    description,
-    startDate,
-    endDate,
-    guides,
-  } = req.body;
+  try {
+    // Extract fields from request body
+    const {
+      name,
+      duration,
+      maxGroupSize,
+      price,
+      priceDiscount,
+      description,
+      startDate,
+      endDate,
+      location,
+    } = req.body;
 
-  const locationData = req.body.location ? JSON.parse(location) : null;
-  if (!locationData) {
-    return next(new AppError("Location is not defiend", 400));
+    // Parse location data
+    let locationData;
+    try {
+      locationData = JSON.parse(location);
+    } catch (error) {
+      return next(new AppError("Invalid location data format", 400));
+    }
+
+    if (!locationData || !locationData.coordinates) {
+      return next(new AppError("Location coordinates are required", 400));
+    }
+
+    // Handle image
+    const imageCover = req.file ? req.file.filename : null;
+
+    // Create the tour
+    const newTour = await Tour.create({
+      name,
+      duration: Number(duration),
+      maxGroupSize: Number(maxGroupSize),
+      location: {
+        type: "Point",
+        coordinates: locationData.coordinates,
+      },
+      price: Number(price),
+      priceDiscount: priceDiscount ? Number(priceDiscount) : undefined,
+      description,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      imageCover,
+      guides: [], // Initialize empty if not provided
+    });
+
+    if (!newTour) {
+      return next(new AppError("Failed to create tour", 404));
+    }
+
+    res.status(201).json({
+      status: "success",
+      data: {
+        tour: newTour,
+      },
+    });
+  } catch (error) {
+    return next(new AppError(error.message, 400));
   }
-
-  // handle image
-  const imageCover = req.file ? req.file.path : null;
-  const guideIds = guides ? guides.split(",") : [];
-
-  const newTour = await Tour.create({
-    name,
-    duration: Number(duration),
-    maxGroupSize: Number(maxGroupSize),
-    location: {
-      coordinates: locationData.coordinates,
-    },
-    price: Number(price),
-    priceDiscount: Number(priceDiscount),
-    description,
-    startDate: new Date(startDate),
-    endDate: new Date(endDate),
-    imageCover,
-    guides: guideIds,
-  });
-
-  if (!newTour) return next(new AppError("Tour is not created", 404));
-
-  res.status(200).json({
-    status: "success",
-    newTour,
-  });
-  // res.json({message: "Create Tour"})
 });
 
 // UPDATE TOUR

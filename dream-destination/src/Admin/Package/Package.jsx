@@ -1,47 +1,95 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import CreatePackageForm from "./CreatePackageForm";
+import { Link, useNavigate } from "react-router-dom";
 import "./Package.css";
 
 const Package = () => {
+  const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [formData, setFormData] = useState({
-    package_name: "",
-    package_description: "",
+    name: "",
+    description: "",
     duration: "",
     price: "",
-    start_date: "",
-    end_date: "",
+    startDate: "",
+    endDate: "",
     status: "active",
-    discount: "",
-    package_image: null,
+    priceDiscount: "",
+    maxGroupSize: "",
+    imageCover: null,
   });
 
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-  const closeSidebar = () => setIsSidebarOpen(false);
+  // Fetch packages implementation using useCallback to prevent unnecessary re-renders
+  const fetchPackages = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("http://localhost:8000/api/tours", {
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch packages with status: ${response.status}`
+        );
+      }
+      const data = await response.json();
+      setPackages(data.tours || []);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const toggleForm = () => {
-    setIsFormOpen(!isFormOpen);
-    setFormData({
-      package_name: "",
-      package_description: "",
-      duration: "",
-      price: "",
-      start_date: "",
-      end_date: "",
-      status: "active",
-      discount: "",
-      package_image: null,
-    });
-  };
+  // First check if the user is an admin
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/users/me", {
+          credentials: "include",
+        });
+        if (!response.ok) {
+          throw new Error(
+            `Authentication failed with status: ${response.status}`
+          );
+        }
+        const data = await response.json();
+        if (data.data && data.data.role === "admin") {
+          setIsAdmin(true);
+        } else {
+          console.log("User is not an admin, redirecting to home");
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setError("Authentication failed. Please login again.");
+        navigate("/login");
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    checkAuthStatus();
+  }, [navigate]);
+
+  // Only fetch packages if the user is confirmed as admin
+  useEffect(() => {
+    if (isAdmin) {
+      fetchPackages();
+    }
+  }, [isAdmin, fetchPackages]);
+
+  // Responsive sidebar management
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth > 768) {
-        setIsSidebarOpen(false); // Automatically close the sidebar on larger screens
+        setIsSidebarOpen(false);
       }
     };
 
@@ -51,19 +99,13 @@ const Package = () => {
     };
   }, []);
 
-  useEffect(() => {
-    fetchPackages();
-  }, []);
-
   // Close sidebar when clicking outside on mobile
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Only apply on mobile screens
       if (window.innerWidth <= 768 && isSidebarOpen) {
         const sidebar = document.querySelector(".sidebar");
         const menuToggle = document.querySelector(".menu-toggle");
 
-        // Check if click is outside sidebar and not on the menu toggle
         if (
           sidebar &&
           !sidebar.contains(event.target) &&
@@ -84,34 +126,82 @@ const Package = () => {
     };
   }, [isSidebarOpen]);
 
-  const fetchPackages = async () => {
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  const closeSidebar = () => setIsSidebarOpen(false);
+
+  const toggleForm = () => {
+    setIsFormOpen(!isFormOpen);
+    if (!isFormOpen) {
+      setFormData({
+        name: "",
+        description: "",
+        duration: "",
+        price: "",
+        startDate: "",
+        endDate: "",
+        status: "active",
+        priceDiscount: "",
+        maxGroupSize: "",
+        imageCover: null,
+      });
+    }
+  };
+
+  // In Package.jsx
+  const handleSubmit = async (formData) => {
+    if (!isAdmin) {
+      alert("Only admins can create packages");
+      return;
+    }
+
     try {
-      const response = await fetch("http://localhost:8000/api/tours");
-      if (!response.ok) {
-        throw new Error("Failed to fetch packages");
+      const response = await fetch("http://localhost:8000/api/tours", {
+        method: "POST",
+        credentials: "include",
+        body: formData, // Use the FormData directly
+      });
+
+      if (response.ok) {
+        alert("Package Created Successfully!");
+        toggleForm();
+        await fetchPackages(); // Refresh the packages list
+      } else {
+        const errorData = await response.json();
+        alert(
+          `Failed to create package: ${errorData.message || "Unknown error"}`
+        );
+        console.error("Server response:", errorData);
       }
-      const data = await response.json();
-      setPackages(data.tours || []); // Ensure correct response structure
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+      console.error("Error creating package:", error);
     }
   };
 
   const handleDelete = async (id) => {
+    if (!isAdmin) {
+      alert("Only admins can delete packages");
+      return;
+    }
+
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this package?"
     );
-    if (!confirmDelete) return; // If user clicks "Cancel", exit function
+    if (!confirmDelete) return;
 
     try {
       const response = await fetch(`http://localhost:8000/api/tours/${id}`, {
         method: "DELETE",
+        credentials: "include",
       });
 
       if (!response.ok) {
-        throw new Error("Failed to delete package");
+        const errorData = await response.json();
+        throw new Error(
+          `Failed to delete package: ${
+            errorData.message || `Status: ${response.status}`
+          }`
+        );
       }
 
       alert("Package deleted successfully!");
@@ -119,23 +209,49 @@ const Package = () => {
         prevPackages.filter((pkg) => pkg._id !== id)
       );
     } catch (err) {
-      alert(`Error deleting package: ${err.message}`); // Show error message in alert box
+      alert(`Error deleting package: ${err.message}`);
       console.error("Error deleting package:", err);
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
-    setFormData({ ...formData, [name]: type === "file" ? files[0] : value });
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "file" ? files[0] : value,
+    }));
   };
 
-  // Function to close sidebar and form
-  const handleOverlayClick = (e) => {
-    // Stop propagation to prevent other click handlers from firing
-    e.stopPropagation();
+  // Function to close sidebar and form when overlay is clicked
+  const handleOverlayClick = () => {
     setIsSidebarOpen(false);
     setIsFormOpen(false);
   };
+
+  // Filter packages based on search query
+  const filteredPackages = packages.filter((pkg) =>
+    pkg.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // If there's an auth error, show it
+  if (error && error.includes("Authentication failed")) {
+    return (
+      <div className="auth-error-container">
+        <h2>Authentication Error</h2>
+        <p>{error}</p>
+        <button onClick={() => navigate("/login")}>Go to Login</button>
+      </div>
+    );
+  }
+
+  // Show loading until auth check is done
+  if (loading && !isAdmin) {
+    return (
+      <div className="loading-container">
+        <p>Checking authorization...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="package-container">
@@ -151,7 +267,7 @@ const Package = () => {
             right: 0,
             bottom: 0,
             backgroundColor: "rgba(0,0,0,0.5)",
-            zIndex: 999, // Ensure overlay is above other elements but below sidebar
+            zIndex: 999,
           }}
         ></div>
       )}
@@ -159,7 +275,7 @@ const Package = () => {
       {/* Sidebar */}
       <aside
         className={`sidebar ${isSidebarOpen ? "active" : ""}`}
-        style={{ zIndex: 1000 }} // Ensure sidebar is above overlay
+        style={{ zIndex: 1000 }}
       >
         <div className="brand">Travel Admin</div>
         <ul className="nav-items">
@@ -174,7 +290,11 @@ const Package = () => {
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/package" className="nav-link" onClick={closeSidebar}>
+            <Link
+              to="/package"
+              className="nav-link active"
+              onClick={closeSidebar}
+            >
               Packages
             </Link>
           </li>
@@ -189,19 +309,11 @@ const Package = () => {
             </Link>
           </li>
         </ul>
-        {/* Close button specifically for mobile */}
         {window.innerWidth <= 768 && (
           <button
+            className="close-button"
             onClick={closeSidebar}
-            style={{
-              position: "absolute",
-              top: "10px",
-              right: "10px",
-              background: "none",
-              border: "none",
-              fontSize: "20px",
-              cursor: "pointer",
-            }}
+            aria-label="Close sidebar"
           >
             ✖
           </button>
@@ -211,7 +323,11 @@ const Package = () => {
       {/* Main Content */}
       <main className="main-content">
         <div className="header">
-          <div className="menu-toggle" onClick={toggleSidebar}>
+          <div
+            className="menu-toggle"
+            onClick={toggleSidebar}
+            aria-label="Toggle sidebar"
+          >
             ☰
           </div>
           <div className="user-info">Admin</div>
@@ -220,143 +336,101 @@ const Package = () => {
           </button>
         </div>
 
-        {/* Form */}
+        {/* Package Form */}
         {isFormOpen && (
-          <div className="form-container">
-            <h2>Create Package</h2>
-            <label>Package Name</label>
-            <input
-              type="text"
-              name="package_name"
-              value={formData.package_name}
-              onChange={handleInputChange}
-              placeholder="Enter package name"
-            />
-
-            <label>Package Description</label>
-            <textarea
-              name="package_description"
-              value={formData.package_description}
-              onChange={handleInputChange}
-              placeholder="Enter description"
-            ></textarea>
-
-            <label>Duration (in days)</label>
-            <input
-              type="number"
-              name="duration"
-              value={formData.duration}
-              onChange={handleInputChange}
-              placeholder="Enter duration"
-            />
-
-            <label>Price</label>
-            <input
-              type="number"
-              name="price"
-              value={formData.price}
-              onChange={handleInputChange}
-              placeholder="Enter price"
-            />
-
-            <label>Start Date</label>
-            <input
-              type="date"
-              name="start_date"
-              value={formData.start_date}
-              onChange={handleInputChange}
-            />
-
-            <label>End Date</label>
-            <input
-              type="date"
-              name="end_date"
-              value={formData.end_date}
-              onChange={handleInputChange}
-            />
-
-            <label>Discount</label>
-            <input
-              type="number"
-              name="discount"
-              value={formData.discount}
-              onChange={handleInputChange}
-              placeholder="Enter discount"
-            />
-
-            <label>Package Image</label>
-            <input
-              type="file"
-              name="package_image"
-              onChange={handleInputChange}
-            />
-
-            <button onClick={() => alert("Package Created!")}>Submit</button>
-            <button onClick={toggleForm} className="close-button">
-              Close
-            </button>
-          </div>
+          <CreatePackageForm onSubmit={handleSubmit} onCancel={toggleForm} />
         )}
 
         {/* Search Bar */}
-        <input
-          type="text"
-          className="search-bar"
-          placeholder="Search packages..."
-        />
+        <div className="search-container">
+          <input
+            type="text"
+            className="search-bar"
+            placeholder="Search packages..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
 
         {/* Display Loading and Error Messages */}
-        {loading && <p>Loading packages...</p>}
-        {error && <p className="error">{error}</p>}
+        {loading && <div className="loading">Loading packages...</div>}
+        {error && !error.includes("Authentication failed") && (
+          <div className="error-message">{error}</div>
+        )}
 
-        {/* Table */}
-        {!loading && !error && packages.length > 0 ? (
-          <table>
-            <thead>
-              <tr>
-                <th>Package ID</th>
-                <th>Package Name</th>
-                <th>Duration</th>
-                <th>Max Group Size</th>
-                <th>Price</th>
-                <th>Discount</th>
-                <th>Rating</th>
-                <th>Rating Quality</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {packages.map((pkg) => (
-                <tr key={pkg._id}>
-                  <td data-label="Package ID">{pkg._id}</td>
-                  <td data-label="Package Name">{pkg.name}</td>
-                  <td data-label="Duration">{pkg.duration} days</td>
-                  <td data-label="Duration">{pkg.maxGroupSize}</td>
-                  <td data-label="Price">${pkg.price}</td>
-                  <td data-label="Discount">${pkg.priceDiscount}</td>
-                  <td data-label="Rating">{pkg.ratingAverage || "N/A"}</td>
-                  <td data-label="Rating">{pkg.ratingQuantity}</td>
-                  <td data-label="Status">
-                    <span className={`status-badge ${pkg.status}`}>
-                      {pkg.status ? "Active" : "Not Active"}
-                    </span>
-                  </td>
-                  <td data-label="Actions">
-                    <button className="edit-button">Edit</button>
-                    <button
-                      className="delete-button"
-                      onClick={() => handleDelete(pkg._id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          !loading && <p>No packages found.</p>
+        {/* Packages Table */}
+        {!loading && !error && (
+          <div className="table-container">
+            {filteredPackages.length > 0 ? (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Package ID</th>
+                    <th>Package Name</th>
+                    <th>Duration</th>
+                    <th>Max Group Size</th>
+                    <th>Price</th>
+                    <th>Discount</th>
+                    <th>Rating</th>
+                    <th>Rating Quality</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredPackages.map((pkg) => (
+                    <tr key={pkg._id}>
+                      <td data-label="Package ID">{pkg._id}</td>
+                      <td data-label="Package Name">{pkg.name}</td>
+                      <td data-label="Duration">{pkg.duration} days</td>
+                      <td data-label="Max Group Size">
+                        {pkg.maxGroupSize || "N/A"}
+                      </td>
+                      <td data-label="Price">${pkg.price.toFixed(2)}</td>
+                      <td data-label="Discount">
+                        {pkg.priceDiscount
+                          ? `$${pkg.priceDiscount.toFixed(2)}`
+                          : "N/A"}
+                      </td>
+                      <td data-label="Rating">
+                        {pkg.ratingAverage
+                          ? pkg.ratingAverage.toFixed(1)
+                          : "N/A"}
+                      </td>
+                      <td data-label="Rating Quantity">
+                        {pkg.ratingQuantity || 0}
+                      </td>
+                      <td data-label="Status">
+                        <span
+                          className={`status-badge ${pkg.status || "inactive"}`}
+                        >
+                          {pkg.status === true ? "Active" : "Inactive"}
+                        </span>
+                      </td>
+                      <td data-label="Actions" className="action-buttons">
+                        <button
+                          className="edit-button"
+                          onClick={() =>
+                            alert("Edit functionality not implemented yet")
+                          }
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="delete-button"
+                          onClick={() => handleDelete(pkg._id)}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="no-data">No packages found matching your search.</p>
+            )}
+          </div>
         )}
       </main>
     </div>
