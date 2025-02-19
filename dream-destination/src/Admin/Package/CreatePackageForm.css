@@ -134,9 +134,9 @@
 }
 
 /* Input type number styles */
-.form-group input[type="number"] {
+/* .form-group input[type="number"] {
     -moz-appearance: textfield;
-}
+} */
 
 .form-group input[type="number"]::-webkit-outer-spin-button,
 .form-group input[type="number"]::-webkit-inner-spin-button {
