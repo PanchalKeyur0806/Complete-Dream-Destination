@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import CreatePackageForm from "./CreatePackageForm";
+import UpdatePackageForm from "./UpdatePackageForm";
 import { Link, useNavigate } from "react-router-dom";
 import "./Package.css";
 
@@ -12,6 +13,8 @@ const Package = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isUpdateFormOpen, setIsUpdateFormOpen] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -24,6 +27,46 @@ const Package = () => {
     maxGroupSize: "",
     imageCover: null,
   });
+
+  const handleUpdate = async (formData) => {
+    if (!isAdmin || !selectedPackage) {
+      alert("Only admins can update packages");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/tours/${selectedPackage._id}`,
+        {
+          method: "PATCH",
+          credentials: "include",
+          body: formData,
+        }
+      );
+
+      if (response.ok) {
+        alert("Package Updated Successfully!");
+        setIsUpdateFormOpen(false);
+        setSelectedPackage(null);
+        await fetchPackages(); // Refresh the packages list
+      } else {
+        const errorData = await response.json();
+        alert(
+          `Failed to update package: ${errorData.message || "Unknown error"}`
+        );
+        console.error("Server response:", errorData);
+      }
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+      console.error("Error updating package:", error);
+    }
+  };
+
+  // Update the edit button click handler
+  const handleEditClick = (pkg) => {
+    setSelectedPackage(pkg);
+    setIsUpdateFormOpen(true);
+  };
 
   // Fetch packages implementation using useCallback to prevent unnecessary re-renders
   const fetchPackages = useCallback(async () => {
@@ -341,6 +384,18 @@ const Package = () => {
           <CreatePackageForm onSubmit={handleSubmit} onCancel={toggleForm} />
         )}
 
+        {/* Update Package Form */}
+        {isUpdateFormOpen && (
+          <UpdatePackageForm
+            packageData={selectedPackage}
+            onSubmit={handleUpdate}
+            onCancel={() => {
+              setIsUpdateFormOpen(false);
+              setSelectedPackage(null);
+            }}
+          />
+        )}
+
         {/* Search Bar */}
         <div className="search-container">
           <input
@@ -410,9 +465,7 @@ const Package = () => {
                       <td data-label="Actions" className="action-buttons">
                         <button
                           className="edit-button"
-                          onClick={() =>
-                            alert("Edit functionality not implemented yet")
-                          }
+                          onClick={() => handleEditClick(pkg)}
                         >
                           Edit
                         </button>
