@@ -41,15 +41,13 @@ const tourSchema = mongoose.Schema(
     location: {
       type: {
         type: String,
-        enum: ["Point"],
         default: "Point",
+        enum: ["Point"],
       },
       coordinates: {
         type: [Number],
-        default: [true, "Tour must have a coordinates"],
+        required: true,
       },
-      address: String,
-      city: String,
     },
     hotel: {
       type: mongoose.Schema.ObjectId,
@@ -102,21 +100,31 @@ tourSchema.virtual("review", {
 tourSchema.pre("save", async function (next) {
   this.slug = slugify(this.name);
 
-  // find the neareast hotel
-  const neareastHotel = await Hotel.findOne({
-    location: {
-      $near: {
-        $geometry: {
-          type: "Point",
-          coordinates: this.location.coordinates,
-        },
-        $maxDistance: 10000, // 10km
-      },
-    },
-  });
+  if (!this.location || !this.location.coordinates) {
+    console.log("There is not coordinates found");
 
-  if (neareastHotel) {
-    this.hotel = neareastHotel._id; // store hotel object id
+    return next();
+  }
+
+  try {
+    // find the neareast hotel
+    const neareastHotel = await Hotel.findOne({
+      location: {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: this.location.coordinates,
+          },
+          $maxDistance: 10000, // 10km
+        },
+      },
+    });
+
+    if (neareastHotel) {
+      this.hotel = neareastHotel._id; // store hotel object id
+    }
+  } catch (err) {
+    console.log(err);
   }
   // go to next middleware
   next();

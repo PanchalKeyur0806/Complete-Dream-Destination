@@ -51,6 +51,11 @@ exports.createTour = catchAsync(async (req, res, next) => {
     guides,
   } = req.body;
 
+  const locationData = req.body.location ? JSON.parse(location) : null;
+  if (!locationData) {
+    return next(new AppError("Location is not defiend", 400));
+  }
+
   // handle image
   const imageCover = req.file ? req.file.path : null;
   const guideIds = guides ? guides.split(",") : [];
@@ -59,7 +64,9 @@ exports.createTour = catchAsync(async (req, res, next) => {
     name,
     duration: Number(duration),
     maxGroupSize: Number(maxGroupSize),
-    location: JSON.parse(location),
+    location: {
+      coordinates: locationData.coordinates,
+    },
     price: Number(price),
     priceDiscount: Number(priceDiscount),
     description,
@@ -80,6 +87,7 @@ exports.createTour = catchAsync(async (req, res, next) => {
 
 // UPDATE TOUR
 exports.updateTour = catchAsync(async (req, res, next) => {
+  // const {location} = req.body
   const imageCover = req.file ? req.file.path : undefined;
   const guideIds = req.body.guides ? req.body.guides.split(",") : undefined;
 
