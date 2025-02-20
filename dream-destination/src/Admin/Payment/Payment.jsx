@@ -1,12 +1,71 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Payment.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Payment() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const navigate = useNavigate();
 
-  const toggleModal = () => {
+  useEffect(() => {
+    const checkAuthAndFetchData = async () => {
+      try {
+        // First check if user is admin
+        const authResponse = await fetch("http://localhost:8000/api/users/me", {
+          credentials: "include",
+        });
+
+        if (!authResponse.ok) {
+          throw new Error(
+            `Authentication failed with status: ${authResponse.status}`
+          );
+        }
+
+        const userData = await authResponse.json();
+
+        if (userData.data && userData.data.role === "admin") {
+          setIsAdmin(true);
+          // If user is admin, fetch booking data
+          const bookingsResponse = await fetch(
+            "http://localhost:8000/api/bookings",
+            {
+              credentials: "include",
+            }
+          );
+
+          if (!bookingsResponse.ok) {
+            throw new Error(
+              `Failed to fetch bookings: ${bookingsResponse.status}`
+            );
+          }
+
+          const bookingsData = await bookingsResponse.json();
+          setBookings(bookingsData.data || []);
+        } else {
+          console.log("User is not an admin, redirecting to home");
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        setError("Failed to load data. Please try again later.");
+        if (error.message.includes("Authentication failed")) {
+          navigate("/login");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuthAndFetchData();
+  }, [navigate]);
+
+  const toggleModal = (booking = null) => {
+    setSelectedBooking(booking);
     setIsModalOpen(!isModalOpen);
   };
 
@@ -17,6 +76,14 @@ function Payment() {
   const applyFilters = () => {
     console.log("Filters applied");
   };
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="error">{error}</div>;
+  }
 
   return (
     <>
@@ -101,53 +168,85 @@ function Payment() {
             </div>
           </div>
 
-          {/* Payments Table */}
-          <div className="bg-white shadow rounded-lg overflow-x-auto">
-            <table>
-              <thead>
-                <tr>
-                  <th>Transaction ID</th>
-                  <th>Booking ID</th>
-                  <th>Customer Name</th>
-                  <th className="text-right">Amount Paid</th>
-                  <th>Payment Method</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>TX12345</td>
-                  <td>BK56789</td>
-                  <td>John Doe</td>
-                  <td className="text-right">$500</td>
-                  <td>Credit Card</td>
-                  <td>
-                    <span className="px-2 py-1 rounded bg-green-100 text-green-800">
-                      Paid
-                    </span>
-                  </td>
-                  <td>2025-01-15</td>
-                  <td>
-                    <button
-                      className="bg-gray-500 text-white px-3 py-1 rounded mr-2"
-                      onClick={toggleModal}
-                    >
-                      View
-                    </button>
-                    <button className="bg-red-500 text-white px-3 py-1 rounded">
-                      Refund
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          {/* Updated Payments Table */}
+          <div className="table-wrapper bg-white shadow rounded-lg">
+            <div className="table-container">
+              <table className="payment-table">
+                <thead>
+                  <tr>
+                    <th className="sticky-header">Payment ID</th>
+                    <th className="sticky-header">Booking ID</th>
+                    <th className="sticky-header">Tour Name</th>
+                    <th className="sticky-header">Customer Name</th>
+                    <th className="sticky-header text-right">Amount Paid</th>
+                    <th className="sticky-header">Number of Guests</th>
+                    <th className="sticky-header">Status</th>
+                    <th className="sticky-header">Date</th>
+                    <th className="sticky-header">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bookings.map((booking) => (
+                    <tr key={booking._id}>
+                      <td data-label="Payment ID" className="cell-content">
+                        {booking.paymentId}
+                      </td>
+                      <td data-label="Booking ID" className="cell-content">
+                        {booking._id}
+                      </td>
+                      <td data-label="Tour Name" className="cell-content">
+                        {booking.tour.name}
+                      </td>
+                      <td data-label="Customer Name" className="cell-content">
+                        {booking.user.name}
+                      </td>
+                      <td
+                        data-label="Amount Paid"
+                        className="cell-content text-right"
+                      >
+                        ${booking.totalPrice}
+                      </td>
+                      <td
+                        data-label="Number of Guests"
+                        className="cell-content"
+                      >
+                        {booking.numberOfGuests}
+                      </td>
+                      <td data-label="Status" className="cell-content">
+                        <span
+                          className={`status-badge ${
+                            booking.status === "paid"
+                              ? "status-paid"
+                              : booking.status === "pending"
+                              ? "status-pending"
+                              : "status-refunded"
+                          }`}
+                        >
+                          {booking.status}
+                        </span>
+                      </td>
+                      <td data-label="Date" className="cell-content">
+                        {booking.createdAtIst}
+                      </td>
+                      <td className="cell-content">
+                        <button
+                          className="btn-view"
+                          onClick={() => toggleModal(booking)}
+                        >
+                          View
+                        </button>
+                        <button className="btn-refund">Refund</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
         {/* Modal */}
-        {isModalOpen && (
+        {isModalOpen && selectedBooking && (
           <div className="payment-modal">
             <div className="payment-modal-content">
               <div className="modal-header">
@@ -159,11 +258,35 @@ function Payment() {
               <div className="modal-body">
                 <div className="payment-detail">
                   <label>Payment ID:</label>
-                  <span>TX12345</span>
+                  <span>{selectedBooking.paymentId}</span>
                 </div>
                 <div className="payment-detail">
-                  <label>User Name:</label>
-                  <span>John Doe</span>
+                  <label>Booking ID:</label>
+                  <span>{selectedBooking._id}</span>
+                </div>
+                <div className="payment-detail">
+                  <label>Tour Name:</label>
+                  <span>{selectedBooking.tour.name}</span>
+                </div>
+                <div className="payment-detail">
+                  <label>Customer Name:</label>
+                  <span>{selectedBooking.user.name}</span>
+                </div>
+                <div className="payment-detail">
+                  <label>Amount Paid:</label>
+                  <span>${selectedBooking.totalPrice}</span>
+                </div>
+                <div className="payment-detail">
+                  <label>Number of Guests:</label>
+                  <span>{selectedBooking.numberOfGuests}</span>
+                </div>
+                <div className="payment-detail">
+                  <label>Status:</label>
+                  <span>{selectedBooking.status}</span>
+                </div>
+                <div className="payment-detail">
+                  <label>Date:</label>
+                  <span>{selectedBooking.createdAtIst}</span>
                 </div>
               </div>
               <div className="modal-footer">
