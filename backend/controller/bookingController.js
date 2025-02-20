@@ -66,14 +66,31 @@ exports.createBooking = catchAsync(async (req, res, next) => {
 exports.getBooking = catchAsync(async (req, res, next) => {
   const { tourId } = req.params;
   const booking = await Booking.findById(tourId).populate("tour user");
-  const formatedBooking = formatBooking(booking);
 
   if (!booking) {
     return next(new AppError("Booking does not exists", 400));
   }
+  const formatedBooking = formatBooking(booking);
 
   res.status(200).json({
     status: "success",
     data: formatedBooking,
   });
+});
+
+// In your backend (bookingController.js)
+exports.checkExistingBooking = catchAsync(async (req, res, next) => {
+  const { tourId, userId } = req.params;
+  // const userId = req.user.id;
+
+  const existingBooking = await Booking.findOne({ user: userId, tour: tourId });
+  console.log(existingBooking);
+
+  if (existingBooking) {
+    return res
+      .status(200)
+      .json({ alreadyBooked: true, bookingId: existingBooking._id });
+  }
+
+  res.status(200).json({ alreadyBooked: false });
 });

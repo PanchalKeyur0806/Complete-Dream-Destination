@@ -11,7 +11,12 @@ routes
   .get(authController.restrictTo("admin"), bookingController.getAllBooking);
 routes
   .route("/:tourId")
-  .get(authController.restrictTo("admin"), bookingController.getBooking)
+  .get(bookingController.getBooking)
   .post(bookingController.createBooking);
+
+routes.get(
+  "/check-booking/:userId/:tourId",
+  bookingController.checkExistingBooking
+);
 
 module.exports = routes;
