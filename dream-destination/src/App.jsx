@@ -5,7 +5,6 @@ import Home from "./pages/Home/Home";
 import Cart from "./pages/Cart/Cart";
 import PlaceOrder from "./pages/PlaceOrder/PlaceOrder";
 import { Route, Routes } from "react-router-dom";
-import Footer from "./component/Footer/Footer";
 import LoginPopUp from "./component/LoginPopUp/LoginPopUp";
 import ExploreMenu from "./component/ExploreMenu/ExploreMenu";
 import TourDisplay from "./component/TourDisplay/TourDisplay";
@@ -14,6 +13,8 @@ import Package from "./Admin/Package/Package";
 import Payment from "./Admin/Payment/Payment";
 import Feedback from "./Admin/Feedback/Feedback";
 import User from "./Admin/User/User";
+
+import ContactForm from "./component/ContactForm/ContactForm";
 
 //
 import TourItem from "./component/TourItem/TourItem";
@@ -32,7 +33,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/explore" element={<ExploreMenu />} />
-          <Route path="/footer" element={<Footer />} />
+          <Route path="/contact" element={<ContactForm />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/order" element={<PlaceOrder />} />
           <Route path="/tour" element={<TourDisplay />} />

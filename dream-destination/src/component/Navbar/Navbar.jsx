@@ -129,7 +129,7 @@ function Navbar({ setShowLogin }) {
             Mobile App
           </Link>
           <Link
-            to="/footer"
+            to="/contact"
             onClick={() => {
               setMenu("contact-us");
               removeNavbar();
