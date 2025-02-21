@@ -12,7 +12,7 @@ exports.getTours = catchAsync(async (req, res, next) => {
   let searchQuery = new SearchHelper(Tour.find(), req.query).searchByField(
     "name"
   );
-  console.log(JSON.stringify(req.query, null, 2));
+  console.log(JSON.stringify(req.query, null, 4));
   const tours = await searchQuery.query;
 
   if (!tours) return next(new AppError("Tours not found", 404));

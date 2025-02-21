@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import CreatePackageForm from "./CreatePackageForm";
 import UpdatePackageForm from "./UpdatePackageForm";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./Package.css";
 
 const Package = () => {
@@ -15,6 +16,12 @@ const Package = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isUpdateFormOpen, setIsUpdateFormOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
+
+  //
+
+  const [tours, setTours] = useState([]);
+
+  //
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -27,6 +34,27 @@ const Package = () => {
     maxGroupSize: "",
     imageCover: null,
   });
+
+  // fetch tour using query
+  const fetchTours = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/api/tours?search=${searchQuery}`
+      );
+      setTours(response.data.data);
+    } catch (error) {
+      console.error("Error fetching tours:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (searchQuery) fetchTours();
+    else setTours([]);
+  }, [searchQuery]); // Runs when searchQuery changes
+
+  //
+
+  //
 
   const handleUpdate = async (formData) => {
     if (!isAdmin || !selectedPackage) {
