@@ -5,10 +5,15 @@ const upload = require("../utils/uploadImages");
 // ERROR HADNLING
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
+const SearchHelper = require("../utils/searchHelper");
 
 // GET ALL TOURS
 exports.getTours = catchAsync(async (req, res, next) => {
-  const tours = await Tour.find();
+  let searchQuery = new SearchHelper(Tour.find(), req.query).searchByField(
+    "name"
+  );
+  console.log(JSON.stringify(req.query, null, 2));
+  const tours = await searchQuery.query;
 
   if (!tours) return next(new AppError("Tours not found", 404));
 
