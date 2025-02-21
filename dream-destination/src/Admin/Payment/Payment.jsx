@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Payment.css";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function Payment() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -10,12 +11,14 @@ function Payment() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
   const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuthAndFetchData = async () => {
       try {
-        // First check if user is admin
+        // Step 1: Check user authentication
         const authResponse = await fetch("http://localhost:8000/api/users/me", {
           credentials: "include",
         });
@@ -28,28 +31,28 @@ function Payment() {
 
         const userData = await authResponse.json();
 
-        if (userData.data && userData.data.role === "admin") {
-          setIsAdmin(true);
-          // If user is admin, fetch booking data
-          const bookingsResponse = await fetch(
-            "http://localhost:8000/api/bookings",
-            {
-              credentials: "include",
-            }
-          );
-
-          if (!bookingsResponse.ok) {
-            throw new Error(
-              `Failed to fetch bookings: ${bookingsResponse.status}`
-            );
-          }
-
-          const bookingsData = await bookingsResponse.json();
-          setBookings(bookingsData.data || []);
-        } else {
+        if (userData.data?.role !== "admin") {
           console.log("User is not an admin, redirecting to home");
           navigate("/");
+          return;
         }
+
+        setIsAdmin(true);
+
+        // Step 2: Fetch bookings with optional startDate filter
+        const bookingsUrl = searchQuery
+          ? `http://localhost:8000/api/bookings?startDate=${searchQuery}`
+          : "http://localhost:8000/api/bookings";
+
+        const bookingsResponse = await axios.get(bookingsUrl, {
+          withCredentials: true,
+        });
+
+        if (!bookingsResponse.data) {
+          throw new Error("Failed to fetch bookings");
+        }
+
+        setBookings(bookingsResponse.data.data || []);
       } catch (error) {
         console.error("Error:", error);
         setError("Failed to load data. Please try again later.");
@@ -62,7 +65,7 @@ function Payment() {
     };
 
     checkAuthAndFetchData();
-  }, [navigate]);
+  }, [navigate, searchQuery]); // Refetch when searchQuery changes
 
   const toggleModal = (booking = null) => {
     setSelectedBooking(booking);
@@ -146,25 +149,9 @@ function Payment() {
                 type="date"
                 id="start-date"
                 className="w-full p-2 border rounded"
+                value={searchQuery} // Bind value to state
+                onChange={(e) => setSearchQuery(e.target.value)} // Update state on change
               />
-              <select id="payment-status" className="w-full p-2 border rounded">
-                <option value="">All Status</option>
-                <option value="paid">Paid</option>
-                <option value="pending">Pending</option>
-                <option value="refunded">Refunded</option>
-              </select>
-              <select id="payment-method" className="w-full p-2 border rounded">
-                <option value="">All Methods</option>
-                <option value="credit-card">Credit Card</option>
-                <option value="paypal">PayPal</option>
-                <option value="bank-transfer">Bank Transfer</option>
-              </select>
-              <button
-                className="bg-blue-500 text-white px-4 py-2 rounded"
-                onClick={applyFilters}
-              >
-                Apply Filters
-              </button>
             </div>
           </div>
 

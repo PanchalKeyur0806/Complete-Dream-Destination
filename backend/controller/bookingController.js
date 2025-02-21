@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const moment = require("moment-timezone");
 const Booking = require("../models/bookingModel");
 const Tour = require("../models/tourModel");
+const SearchHelper = require("../utils/searchHelper");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 
@@ -15,7 +16,12 @@ const formatBooking = (booking) => {
 };
 // get all booking
 exports.getAllBooking = catchAsync(async (req, res, next) => {
-  const getBookings = await Booking.find().populate("tour user");
+  const searchQuery = new SearchHelper(Booking.find(), req.query).filterByDate(
+    "bookingAt"
+  );
+
+  const getBookings = await searchQuery.query;
+
   const formatedBooking = getBookings.map(formatBooking);
 
   if (!getBookings) {
@@ -23,6 +29,7 @@ exports.getAllBooking = catchAsync(async (req, res, next) => {
   }
   res.status(200).json({
     status: "success",
+    length: getBookings.length,
     data: formatedBooking,
   });
 });
@@ -65,7 +72,7 @@ exports.createBooking = catchAsync(async (req, res, next) => {
 // get all booking
 exports.getBooking = catchAsync(async (req, res, next) => {
   const { tourId } = req.params;
-  const booking = await Booking.findById(tourId).populate("tour user");
+  const booking = await Booking.findById(tourId);
 
   if (!booking) {
     return next(new AppError("Booking does not exists", 400));
