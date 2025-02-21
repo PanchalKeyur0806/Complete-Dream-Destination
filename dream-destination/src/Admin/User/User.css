@@ -105,6 +105,11 @@
     margin-bottom: 20px;
 }
 
+.search-container input {
+    background-color: white;
+    color: black;
+}
+
 .search-bar {
     width: 100%;
     padding: 12px;

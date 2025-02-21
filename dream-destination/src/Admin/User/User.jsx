@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+
 import { Link, useNavigate } from "react-router-dom";
 import "./User.css";
 
@@ -7,6 +9,7 @@ function User() {
   const [users, setUsers] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch user role
   useEffect(() => {
@@ -24,16 +27,31 @@ function User() {
       .catch((error) => console.error("Error fetching user data:", error));
   }, [navigate]);
 
+  const fetchUsers = async () => {
+    try {
+      console.log(searchQuery);
+
+      const response = await axios.get(
+        `http://localhost:8000/api/users?search=${searchQuery}`,
+        { withCredentials: true }
+      );
+      setUsers(response.data.data.users);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
   // Fetch users only if the user is an admin
   useEffect(() => {
-    if (isAdmin) {
+    if (searchQuery) {
+      fetchUsers();
+    } else if (isAdmin) {
+      // Fetch all users if admin & no search query
       fetch("http://localhost:8000/api/users", {
         method: "GET",
         credentials: "include", // Send cookies for authentication
         headers: {
           "Content-Type": "application/json",
-          // If using JWT authentication, include this header:
-          // "Authorization": `Bearer ${localStorage.getItem("token")}`
         },
       })
         .then((response) => {
@@ -47,8 +65,15 @@ function User() {
           console.log("Data of all users:", data.data.users);
         })
         .catch((error) => console.error("Error fetching users:", error));
+    } else {
+      setUsers([]);
     }
-  }, [isAdmin]);
+  }, [searchQuery, isAdmin]);
+
+  useEffect(() => {
+    if (searchQuery) fetchUsers();
+    else setUsers([]);
+  }, [searchQuery]);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -104,6 +129,16 @@ function User() {
           <div className="user-info">
             <i className="fas fa-user"></i> Admin
           </div>
+        </div>
+
+        <div className="search-container">
+          <input
+            type="text"
+            className="search-bar"
+            placeholder="Search users..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
 
         <div className="container">
