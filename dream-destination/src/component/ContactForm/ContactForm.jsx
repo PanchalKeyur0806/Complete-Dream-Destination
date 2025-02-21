@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./ContactForm.css"; // Make sure to create this CSS file
+import axios from "axios";
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -8,6 +9,24 @@ const ContactForm = () => {
   });
   const [errors, setErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(""); // To store custom error messages
+  const [user, setUser] = useState(null); // Store full user details
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/users/me", {
+          withCredentials: true,
+        });
+
+        setUser(response.data.data);
+      } catch (err) {
+        console.error("Error fetching user:", err);
+        setUser(null);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
@@ -34,13 +53,47 @@ const ContactForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage(""); // Reset error message
+
+    if (!user) {
+      setSubmitStatus("error");
+      setErrorMessage("You must be logged in to submit the form.");
+      return;
+    }
+
+    if (user.role === "admin") {
+      setSubmitStatus("error");
+      setErrorMessage("You are not allowed to perform this action.");
+      return;
+    }
+
     const newErrors = validateForm();
     if (Object.keys(newErrors).length === 0) {
       try {
-        setSubmitStatus("success");
-        // Add your API call here
-        console.log("Form submitted:", formData);
+        const response = await axios.post(
+          "http://localhost:8000/api/contact",
+          {
+            userId: user._id,
+            subject: formData.subject,
+            message: formData.message,
+          },
+          { withCredentials: true }
+        );
+
+        if (response.status === 201) {
+          setSubmitStatus("success");
+          setFormData({ subject: "", message: "" }); // Reset form
+        } else {
+          setSubmitStatus("error");
+          setErrorMessage("Unexpected server response. Please try again.");
+        }
       } catch (error) {
+        console.error("Error submitting form:", error);
+        if (error.response) {
+          setErrorMessage(error.response.data.message || "An error occurred.");
+        } else {
+          setErrorMessage("Network error. Please check your connection.");
+        }
         setSubmitStatus("error");
       }
     } else {
@@ -97,7 +150,7 @@ const ContactForm = () => {
         {submitStatus === "error" && (
           <div className="error-alert">
             <p>Error</p>
-            <p>There was an error sending your message. Please try again.</p>
+            <p>{errorMessage}</p>
           </div>
         )}
       </div>
