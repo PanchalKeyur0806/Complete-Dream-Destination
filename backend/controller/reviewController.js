@@ -5,6 +5,7 @@ const moment = require("moment-timezone");
 const Review = require("../models/reviewModel");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
+const SearchHelper = require("../utils/searchHelper");
 
 // set tour and user id when, they are not specified
 // this is middleware that run before creating reviews
@@ -37,7 +38,11 @@ const formatReviews = (review) => {
 
 // get all reviews
 exports.getAllReview = catchAsync(async (req, res, next) => {
-  const reviews = await Review.find();
+  let searchQuery = new SearchHelper(Review.find(), req.query).searchByField(
+    "review"
+  );
+  let reviews = await searchQuery.query;
+  console.log(reviews);
 
   if (!reviews) {
     return next(new AppError("Reviews not found", 400));

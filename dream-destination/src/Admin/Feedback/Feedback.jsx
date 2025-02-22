@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 const Feedback = () => {
   const [isActive, setIsActive] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -77,7 +78,9 @@ const Feedback = () => {
           throw new Error("Failed to delete feedback");
         }
         setFeedbacks((prevFeedbacks) =>
-          prevFeedbacks.filter((feedback) => feedback._id !== feedbackToDelete._id)
+          prevFeedbacks.filter(
+            (feedback) => feedback._id !== feedbackToDelete._id
+          )
         );
         alert("Feedback deleted successfully");
         setShowDeleteModal(false);
@@ -157,6 +160,15 @@ const Feedback = () => {
             Admin
           </div>
         </div>
+        <div className="search-container">
+          <input
+            type="text"
+            className="search-bar"
+            placeholder="Search packages for finding specific tour reiviews..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
 
         <div className="table-container">
           <h2>Feedbacks</h2>
@@ -217,7 +229,6 @@ const Feedback = () => {
             </table>
           )}
         </div>
-
         {/* Feedback View Modal */}
         <div className={`feedback-modal ${showModal ? "show" : ""}`}>
           <div className="feedback-modal-content">
@@ -248,7 +259,9 @@ const Feedback = () => {
                 <div className="feedback-detail">
                   <label>Date:</label>
                   <p>
-                    {new Date(selectedFeedback.createdAtIst).toLocaleDateString()}
+                    {new Date(
+                      selectedFeedback.createdAtIst
+                    ).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="modal-footer">
@@ -263,7 +276,6 @@ const Feedback = () => {
             )}
           </div>
         </div>
-
         {/* Delete Confirmation Modal */}
         {showDeleteModal && (
           <div className="delete-modal">
