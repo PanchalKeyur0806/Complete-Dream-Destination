@@ -35,30 +35,45 @@ const Feedback = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (!isAdmin) return;
+    if (!isAdmin && searchQuery.trim() === "") return;
 
-    fetch("http://localhost:8000/api/reviews", {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => {
+    const fetchFeedbacks = async () => {
+      setLoading(true);
+      setError(null);
+
+      const url = searchQuery
+        ? `http://localhost:8000/api/reviews?search=${encodeURIComponent(
+            searchQuery
+          )}`
+        : "http://localhost:8000/api/reviews";
+
+      try {
+        const response = await fetch(url, {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
         if (!response.ok) {
           throw new Error("Failed to fetch feedbacks");
         }
-        return response.json();
-      })
-      .then((data) => {
-        setFeedbacks(data.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching feedback:", error);
+
+        const data = await response.json();
+        setFeedbacks(data.data || data); // Adjust based on API response structure
+      } catch (error) {
+        console.error("Error fetching feedbacks:", error);
         setError(error.message);
-      })
-      .finally(() => setLoading(false));
-  }, [isAdmin]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const debounceTimeout = setTimeout(fetchFeedbacks, 500); // Debounce API call for search
+
+    return () => clearTimeout(debounceTimeout); // Cleanup on unmount or query change
+  }, [searchQuery, isAdmin]);
 
   const handleDeleteFeedback = (feedback) => {
     setFeedbackToDelete(feedback);
@@ -164,7 +179,7 @@ const Feedback = () => {
           <input
             type="text"
             className="search-bar"
-            placeholder="Search packages for finding specific tour reiviews..."
+            placeholder="Search reviews..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
