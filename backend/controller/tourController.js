@@ -19,6 +19,7 @@ exports.getTours = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: "Success",
+    length: tours.length,
     tours,
   });
 });
