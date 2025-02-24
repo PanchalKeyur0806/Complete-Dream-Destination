@@ -379,6 +379,11 @@ const Package = () => {
               Feedback
             </Link>
           </li>
+          <li className="nav-item">
+            <Link to="/contacts" className="nav-link" onClick={closeSidebar}>
+              Contacts
+            </Link>
+          </li>
         </ul>
         {window.innerWidth <= 768 && (
           <button

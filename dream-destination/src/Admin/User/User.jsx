@@ -118,6 +118,11 @@ function User() {
               <i className="fas fa-comments"></i> Feedback
             </Link>
           </li>
+          <li className="nav-item">
+            <Link to="/contacts" className="nav-link">
+              <i className="fas fa-comments"></i> Contacts
+            </Link>
+          </li>
         </ul>
       </aside>
 
