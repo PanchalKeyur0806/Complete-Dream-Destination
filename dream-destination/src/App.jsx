@@ -13,7 +13,7 @@ import Package from "./Admin/Package/Package";
 import Payment from "./Admin/Payment/Payment";
 import Feedback from "./Admin/Feedback/Feedback";
 import User from "./Admin/User/User";
-import Contact from "./Admin/Feedback/Contact";
+import Contact from "./Admin/Contact/Contact";
 
 import ContactForm from "./component/ContactForm/ContactForm";
 

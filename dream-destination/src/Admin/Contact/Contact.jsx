@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./Feedback.css";
+import "./Contact.css";
 import { Link, useNavigate } from "react-router-dom";
 
 const Contact = () => {
@@ -8,7 +8,9 @@ const Contact = () => {
   const [error, setError] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedContact, setSelectedContact] = useState(null);
 
   const navigate = useNavigate();
 
@@ -70,6 +72,16 @@ const Contact = () => {
 
     return () => clearTimeout(debounceTimeout); // Cleanup on unmount or query change
   }, [searchQuery, isAdmin]);
+
+  const handleViewContact = (feedback) => {
+    setSelectedContact(feedback);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedContact(null);
+  };
 
   return isAdmin ? (
     <>
@@ -162,7 +174,6 @@ const Contact = () => {
                 {contacts.length > 0 ? (
                   contacts.map((contact) => (
                     <tr key={contact._id}>
-                      {console.log(contact.user)}
                       <td data-label="Contact ID">{contact._id}</td>
                       <td data-label="User">{contact.name}</td>
                       <td data-label="Email">{contact.email}</td>
@@ -175,7 +186,7 @@ const Contact = () => {
                         <div className="action-buttons">
                           <button
                             className="edit-button view-feedback"
-                            // onClick={() => handleViewFeedback(feedback)}
+                            onClick={() => handleViewContact(contact)}
                           >
                             View
                           </button>
@@ -197,6 +208,58 @@ const Contact = () => {
               </tbody>
             </table>
           )}
+        </div>
+
+        {/* Feedback View Modal */}
+        <div className={`contacts-modal ${showModal ? "show" : ""}`}>
+          <div className="contact-modal-content">
+            {selectedContact && (
+              <>
+                <div className="modal-header">
+                  <h3>Contact Details</h3>
+                  <button className="modal-close" onClick={handleCloseModal}>
+                    ×
+                  </button>
+                </div>
+                <div className="contact-detail">
+                  <label>Contact Id:</label>
+                  <p>{selectedContact._id}</p>
+                </div>
+                <div className="contact-detail">
+                  <label>Name:</label>
+                  <p>{selectedContact.name}</p>
+                </div>
+                <div className="contact-detail">
+                  <label>Email:</label>
+                  <p>{selectedContact.email}/5</p>
+                </div>
+                <div className="contact-detail">
+                  <label>Subject:</label>
+                  <p>{selectedContact.subject}</p>
+                </div>
+                <div className="contact-detail">
+                  <label>Message:</label>
+                  <p>{selectedContact.message}</p>
+                </div>
+                <div className="contact-detail">
+                  <label>Date:</label>
+                  <p>
+                    {new Date(
+                      selectedContact.createdAtIst
+                    ).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    className="btn btn-secondary"
+                    onClick={handleCloseModal}
+                  >
+                    Close
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </main>
     </>
