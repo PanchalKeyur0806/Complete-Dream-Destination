@@ -9,6 +9,8 @@ const Contact = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [contactToDelete, setContactToDelete] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedContact, setSelectedContact] = useState(null);
 
@@ -72,6 +74,41 @@ const Contact = () => {
 
     return () => clearTimeout(debounceTimeout); // Cleanup on unmount or query change
   }, [searchQuery, isAdmin]);
+
+  const confirmDelete = () => {
+    fetch(`http://localhost:8000/api/contact/${contactToDelete._id}`, {
+      method: "DELETE",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to delete Contact");
+        }
+        setContacts((prevContacts) =>
+          prevContacts.filter((contact) => contact._id !== contactToDelete._id)
+        );
+        alert("Contact deleted successfully");
+        setShowDeleteModal(false);
+      })
+      .catch((error) => {
+        console.error("Error deleting Contact:", error);
+        alert("Error deleting Contact");
+        setShowDeleteModal(false);
+      });
+  };
+
+  const handleDeleteContact = (contact) => {
+    setContactToDelete(contact);
+    setShowDeleteModal(true);
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setContactToDelete(null);
+  };
 
   const handleViewContact = (feedback) => {
     setSelectedContact(feedback);
@@ -192,7 +229,7 @@ const Contact = () => {
                           </button>
                           <button
                             className="delete-button"
-                            // onClick={() => handleDeleteFeedback(feedback)}
+                            onClick={() => handleDeleteContact(contact)}
                           >
                             Delete
                           </button>
@@ -210,7 +247,7 @@ const Contact = () => {
           )}
         </div>
 
-        {/* Feedback View Modal */}
+        {/* Contact View Modal */}
         <div className={`contacts-modal ${showModal ? "show" : ""}`}>
           <div className="contact-modal-content">
             {selectedContact && (
@@ -261,6 +298,28 @@ const Contact = () => {
             )}
           </div>
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="delete-modal">
+            <div className="delete-modal-content">
+              <div className="modal-header">
+                <h3>Are you sure you want to delete this Contact?</h3>
+                <button className="modal-close" onClick={cancelDelete}>
+                  ×
+                </button>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={cancelDelete}>
+                  Cancel
+                </button>
+                <button className="btn btn-danger" onClick={confirmDelete}>
+                  Yes, Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </>
   ) : null;

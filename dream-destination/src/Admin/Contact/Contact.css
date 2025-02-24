@@ -96,6 +96,62 @@
     font-size: 0.9rem;
 }
 
+.btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+/* delte modal */
+.delete-button {
+    margin-top: 0;
+    width: 35%;
+    font-size: 16px;
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.btn-secondary {
+    background-color: gray !important;
+    color: white;
+}
+
+.btn-danger {
+    background-color: red !important;
+    color: white;
+}
+
+.delete-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.delete-modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    width: 400px;
+}
+
+.btn-secondary {
+    background-color: grey;
+    color: white;
+}
+
+.btn-danger {
+    background-color: red;
+    color: white;
+}
+
 @media (max-width: 480px) {
     .contact-modal-content {
         width: 90%;
