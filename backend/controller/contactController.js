@@ -1,5 +1,7 @@
 const moment = require("moment-timezone");
 const Contact = require("../models/contactModel");
+// const Tour = require("../models/tourModel");
+const SearchHelper = require("../utils/searchHelper");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 
@@ -15,7 +17,10 @@ const contactIstTime = (review) => {
 
 // get all contacts that are in database
 exports.getAllContacts = catchAsync(async (req, res, next) => {
-  const contacts = await Contact.find();
+  const searchQuery = new SearchHelper(Contact.find(), req.query).searchByField(
+    "name"
+  );
+  const contacts = await searchQuery.query;
 
   const formatedContacts = contacts.map(contactIstTime);
 

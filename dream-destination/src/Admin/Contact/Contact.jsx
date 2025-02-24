@@ -239,7 +239,7 @@ const Contact = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7">No feedbacks available</td>
+                    <td colSpan="7">No Contacts available</td>
                   </tr>
                 )}
               </tbody>
