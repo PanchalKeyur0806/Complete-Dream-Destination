@@ -14,6 +14,7 @@ import Payment from "./Admin/Payment/Payment";
 import Feedback from "./Admin/Feedback/Feedback";
 import User from "./Admin/User/User";
 import Contact from "./Admin/Contact/Contact";
+import ForgotPassword from "./component/ForgotPassword/ForgotPassword";
 
 import ContactForm from "./component/ContactForm/ContactForm";
 
@@ -33,6 +34,7 @@ const App = () => {
         <Navbar setShowLogin={setShowLogin} userName={userName} />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/forgotpassword" element={<ForgotPassword />} />
           <Route path="/explore" element={<ExploreMenu />} />
           <Route path="/contact" element={<ContactForm />} />
           <Route path="/contacts" element={<Contact />} />

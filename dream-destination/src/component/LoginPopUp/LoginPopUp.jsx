@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./LoginPopUp.css";
 import { assets } from "../../assets/assets";
 import Cookies from "js-cookie";
@@ -11,6 +12,7 @@ const LoginPopUp = ({ setShowLogin, setUserName }) => {
     password: "",
   });
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -37,46 +39,29 @@ const LoginPopUp = ({ setShowLogin, setUserName }) => {
     try {
       const response = await fetch(apiUrl, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
         credentials: "include", // Ensures cookies are sent & received
       });
 
       const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Something went wrong");
 
-      if (!response.ok) {
-        throw new Error(data.message || "Something went wrong");
-      }
-
-      // The backend should set the JWT cookie automatically
       if (data.data && data.data.user) {
         setUserName(data.data.user.name);
-
-        // Store user info in localStorage for persistence
         localStorage.setItem("userName", data.data.user.name);
-
-        // Verify if the JWT cookie exists
         const jwt = Cookies.get("jwt");
-        if (!jwt) {
-          if (data.token) {
-            // Fallback: Set cookie manually if the backend didn't set it
-            Cookies.set("jwt", data.token, {
-              expires: 7,
-              path: "/",
-              sameSite: "Lax",
-            });
-          } else {
-            console.warn("JWT cookie not found.");
-          }
+        if (!jwt && data.token) {
+          Cookies.set("jwt", data.token, {
+            expires: 7,
+            path: "/",
+            sameSite: "Lax",
+          });
         }
       }
 
       alert(`${currState} successful!`);
       setShowLogin(false);
-
-      // Ensure reloading updates auth state
       window.location.reload();
     } catch (err) {
       console.error("Auth error:", err);
@@ -132,11 +117,14 @@ const LoginPopUp = ({ setShowLogin, setUserName }) => {
             ? "Create Account"
             : "Login"}
         </button>
-
-        <div className="login-popup-condition">
-          <input type="checkbox" required />
-          <p>By continuing, I agree to the terms of use & privacy policy.</p>
-        </div>
+        {currState === "Login" && (
+          <button
+            className="forgot-password"
+            onClick={() => navigate("/forgotpassword")}
+          >
+            Forgot Password?
+          </button>
+        )}
 
         {currState === "Login" ? (
           <p>
