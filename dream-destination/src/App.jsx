@@ -13,6 +13,7 @@ import Package from "./Admin/Package/Package";
 import Payment from "./Admin/Payment/Payment";
 import Feedback from "./Admin/Feedback/Feedback";
 import User from "./Admin/User/User";
+import Contact from "./Admin/Feedback/Contact";
 
 import ContactForm from "./component/ContactForm/ContactForm";
 
@@ -34,6 +35,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/explore" element={<ExploreMenu />} />
           <Route path="/contact" element={<ContactForm />} />
+          <Route path="/contacts" element={<Contact />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/order" element={<PlaceOrder />} />
           <Route path="/tour" element={<TourDisplay />} />
