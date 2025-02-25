@@ -169,20 +169,24 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
     return next(new AppError("User does not exists", 404));
   }
 
-  const resetToken = user.createPasswordResetToken();
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  user.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+  user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
   await user.save({ validateBeforeSave: false });
 
-  const resetUrl = `${req.protocol}://${req.get(
-    "host"
-  )}/api/users/resetpassword/${resetToken}`;
+  const resetURL = `http://localhost:5173/resetpassword/${resetToken}`;
 
-  const message = `Forgot your password? please click this link to change your password ${resetUrl}. If you didn't make this request please ignore this email`;
+  const message = `Forgot your password? please click this link to change your password ${resetURL}. If you didn't make this request please ignore this email`;
 
   try {
     await sendEmail({
       email: user.email,
       subject: `Your password reset token (Valid for 10 minutes)`,
-      message,
+      message: `click the link to reset password ${resetURL}`,
     });
 
     res.status(200).json({
@@ -223,7 +227,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetExpires = undefined;
   user.passwordResetToken = undefined;
 
-  user.save();
+  await user.save();
 
   const token = signToken(user._id);
   res.cookie("jwt", token, {

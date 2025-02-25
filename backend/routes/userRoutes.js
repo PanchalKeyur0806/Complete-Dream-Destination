@@ -7,7 +7,7 @@ const routes = express.Router();
 // forget password and reset password
 // for anyone
 routes.route("/forgotpassword").post(authController.forgetPassword);
-routes.route("/resetpassword/:token").post(authController.resetPassword);
+routes.route("/resetpassword/:token").patch(authController.resetPassword);
 
 // for authenticating user
 routes.route("/signup").post(authController.signUp);

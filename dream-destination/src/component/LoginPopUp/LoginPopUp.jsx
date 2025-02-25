@@ -118,12 +118,12 @@ const LoginPopUp = ({ setShowLogin, setUserName }) => {
             : "Login"}
         </button>
         {currState === "Login" && (
-          <button
+          <a
             className="forgot-password"
             onClick={() => navigate("/forgotpassword")}
           >
             Forgot Password?
-          </button>
+          </a>
         )}
 
         {currState === "Login" ? (

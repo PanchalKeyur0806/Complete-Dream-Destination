@@ -15,6 +15,7 @@ import Feedback from "./Admin/Feedback/Feedback";
 import User from "./Admin/User/User";
 import Contact from "./Admin/Contact/Contact";
 import ForgotPassword from "./component/ForgotPassword/ForgotPassword";
+import ResetPassword from "./component/ResetPassword/ResetPassword";
 
 import ContactForm from "./component/ContactForm/ContactForm";
 
@@ -35,6 +36,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
+          <Route path="/resetpassword/:token" element={<ResetPassword />} />
           <Route path="/explore" element={<ExploreMenu />} />
           <Route path="/contact" element={<ContactForm />} />
           <Route path="/contacts" element={<Contact />} />
