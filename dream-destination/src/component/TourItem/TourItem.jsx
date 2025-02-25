@@ -19,6 +19,7 @@ const TourItem = () => {
   const [groupSize, setGroupSize] = useState(1);
   const [error, setError] = useState("");
   const [userId, setUserId] = useState(null);
+  const [hasBooked, setHasBooked] = useState(false);
 
   // Fetch tour details
   useEffect(() => {
@@ -112,6 +113,26 @@ const TourItem = () => {
       setError("Booking failed. Please try again.");
     }
   };
+  useEffect(() => {
+    const checkBooking = async () => {
+      if (!userId || !id) return;
+
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/api/bookings/check-booking/${userId}/${id}`,
+          { withCredentials: true }
+        );
+
+        if (response.data.alreadyBooked) {
+          setHasBooked(true);
+        }
+      } catch (error) {
+        console.error("Error checking booking status:", error);
+      }
+    };
+
+    checkBooking();
+  }, [userId, id]);
 
   if (loading) {
     return (
@@ -210,23 +231,29 @@ const TourItem = () => {
             </div>
           </div>
 
-          <div className="booking-container">
-            <label>Enter your Group Size:</label>
-            <input
-              type="number"
-              min="1"
-              max={tour?.maxGroupSize || 15}
-              name="numberOfGuests"
-              value={groupSize}
-              onChange={(e) => setGroupSize(Number(e.target.value))}
-              className="group-size-input"
-              placeholder="Enter group size"
-            />
-            {error && <p className="error-text">{error}</p>}
-            <button className="book-button" onClick={handleBooking}>
-              Book Now
-            </button>
-          </div>
+          {hasBooked ? (
+            <p className="already-booked-message">
+              ✅ You have already booked this tour.
+            </p>
+          ) : (
+            <div className="booking-container">
+              <label>Enter your Group Size:</label>
+              <input
+                type="number"
+                min="1"
+                max={tour?.maxGroupSize || 15}
+                name="numberOfGuests"
+                value={groupSize}
+                onChange={(e) => setGroupSize(Number(e.target.value))}
+                className="group-size-input"
+                placeholder="Enter group size"
+              />
+              {error && <p className="error-text">{error}</p>}
+              <button className="book-button" onClick={handleBooking}>
+                Book Now
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
