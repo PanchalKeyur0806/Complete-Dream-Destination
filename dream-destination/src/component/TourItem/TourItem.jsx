@@ -61,7 +61,7 @@ const TourItem = () => {
         const response = await axios.get("http://localhost:8000/api/users/me", {
           withCredentials: true,
         });
-        finalUserId = response.data._id; // Ensure correct data structure
+        finalUserId = response.data.data._id; // Updated to match the structure used earlier
       } catch (error) {
         setError("You must be logged in to book a tour.");
         return;
@@ -82,23 +82,19 @@ const TourItem = () => {
 
     try {
       const existingBooking = await axios.get(
-        `http://localhost:8000/api/bookings/check-booking/${finalUserId}/${id}`, // Pass both as params
+        `http://localhost:8000/api/bookings/check-booking/${finalUserId}/${id}`,
         {
           withCredentials: true,
         }
       );
 
-      console.log(
-        ".................................................",
-        existingBooking
-      );
-
       if (existingBooking.data.alreadyBooked) {
         setError("You have already booked this tour.");
+        setHasBooked(true); // Make sure to update the state
         return;
       }
 
-      // **Step 2: If not booked, proceed with booking**
+      // If not booked, proceed with booking
       await axios.post(
         `http://localhost:8000/api/bookings/${id}`,
         {
@@ -108,30 +104,65 @@ const TourItem = () => {
         { withCredentials: true }
       );
 
+      setHasBooked(true); // Update the state after successful booking
       navigate("/booking-success");
     } catch (err) {
       setError("Booking failed. Please try again.");
     }
   };
-  useEffect(() => {
-    const checkBooking = async () => {
-      if (!userId || !id) return;
 
-      try {
-        const response = await axios.get(
-          `http://localhost:8000/api/bookings/check-booking/${userId}/${id}`,
-          { withCredentials: true }
-        );
+  // cancel booking
+  const handleCancelBooking = async () => {
+    if (!userId || !tour || !tour.startDate) {
+      setError("Invalid booking or tour details.");
+      return;
+    }
 
-        if (response.data.alreadyBooked) {
-          setHasBooked(true);
+    const today = new Date().toISOString().split("T")[0];
+    const tourStartDate = new Date(tour.startDate).toISOString().split("T")[0];
+
+    if (tourStartDate === today) {
+      setError("You cannot cancel a tour on the start date.");
+      return;
+    }
+
+    try {
+      await axios.delete(
+        `http://localhost:8000/api/bookings/cancel/${tour._id}`,
+        {
+          withCredentials: true,
         }
-      } catch (error) {
-        console.error("Error checking booking status:", error);
-      }
-    };
+      );
 
-    checkBooking();
+      setHasBooked(false); // Update state immediately
+      setError(""); // Clear errors
+    } catch (error) {
+      setError("Cancellation failed. Please try again.");
+    }
+  };
+
+  const checkBooking = async () => {
+    if (!userId || !id) return;
+
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/api/bookings/check-booking/${userId}/${id}`,
+        { withCredentials: true }
+      );
+
+      console.log("Booking check response:", response.data);
+      setHasBooked(response.data.alreadyBooked);
+    } catch (error) {
+      console.error("Error checking booking status:", error);
+      setHasBooked(false);
+    }
+  };
+
+  // Run checkBooking when userId or id changes
+  useEffect(() => {
+    if (userId && id) {
+      checkBooking();
+    }
   }, [userId, id]);
 
   if (loading) {
@@ -231,29 +262,36 @@ const TourItem = () => {
             </div>
           </div>
 
-          {hasBooked ? (
-            <p className="already-booked-message">
-              ✅ You have already booked this tour.
-            </p>
-          ) : (
-            <div className="booking-container">
-              <label>Enter your Group Size:</label>
-              <input
-                type="number"
-                min="1"
-                max={tour?.maxGroupSize || 15}
-                name="numberOfGuests"
-                value={groupSize}
-                onChange={(e) => setGroupSize(Number(e.target.value))}
-                className="group-size-input"
-                placeholder="Enter group size"
-              />
-              {error && <p className="error-text">{error}</p>}
-              <button className="book-button" onClick={handleBooking}>
-                Book Now
-              </button>
-            </div>
-          )}
+          <div className="booking-container">
+            {hasBooked ? (
+              <>
+                <p className="already-booked-message">
+                  ✅ You have already booked this tour.
+                </p>
+                <button className="cancel-button" onClick={handleCancelBooking}>
+                  Cancel Booking
+                </button>
+              </>
+            ) : (
+              <>
+                <label>Enter your Group Size:</label>
+                <input
+                  type="number"
+                  min="1"
+                  max={tour?.maxGroupSize || 15}
+                  name="numberOfGuests"
+                  value={groupSize}
+                  onChange={(e) => setGroupSize(Number(e.target.value))}
+                  className="group-size-input"
+                  placeholder="Enter group size"
+                />
+                <button className="book-button" onClick={handleBooking}>
+                  Book Now
+                </button>
+              </>
+            )}
+            {error && <p className="error-text">{error}</p>}
+          </div>
         </div>
       </div>
     </div>
