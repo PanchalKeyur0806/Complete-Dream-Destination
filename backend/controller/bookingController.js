@@ -101,3 +101,33 @@ exports.checkExistingBooking = catchAsync(async (req, res, next) => {
 
   res.status(200).json({ alreadyBooked: false });
 });
+
+// cancel booking
+exports.handleCancelBooking = catchAsync(async (req, res, next) => {
+  const { _id } = req.user;
+  const { tourId } = req.params;
+
+  const booking = await Booking.findOne({ user: _id, tour: tourId });
+  if (!booking) {
+    return next(new AppError("There is no booking created", 400));
+  }
+
+  const tour = await Tour.findById(tourId);
+  if (!tour) {
+    return next(new AppError("There is no tour found", 400));
+  }
+
+  const today = new Date().toISOString().split("T")[0];
+  const tourStartDate = new Date(tour.startDate).toISOString().split("T")[0];
+
+  if (tourStartDate === today) {
+    return next(new AppError("you can't cancel tour on start date", 400));
+  }
+
+  await Booking.findOneAndDelete({ _id: booking._id });
+
+  res.status(204).json({
+    status: "success",
+    message: "Booking canceled successfully",
+  });
+});

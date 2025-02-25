@@ -19,4 +19,8 @@ routes.get(
   bookingController.checkExistingBooking
 );
 
+routes
+  .route("/cancel/:tourId")
+  .delete(authController.protect, bookingController.handleCancelBooking);
+
 module.exports = routes;
