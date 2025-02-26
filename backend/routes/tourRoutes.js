@@ -2,10 +2,16 @@ const express = require("express");
 const reviewRouter = require("./reviewRoutes");
 const tourController = require("../controller/tourController");
 const authController = require("../controller/authController");
+const bookingController = require("../controller/bookingController");
 
 const routes = express.Router();
 //
-routes.use("/:tourId/reviews", reviewRouter);
+routes.use(
+  "/:tourId/reviews",
+  authController.protect,
+  bookingController.checkIfUserBookedTour,
+  reviewRouter
+);
 
 //
 

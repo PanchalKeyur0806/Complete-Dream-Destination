@@ -131,3 +131,15 @@ exports.handleCancelBooking = catchAsync(async (req, res, next) => {
     message: "Booking canceled successfully",
   });
 });
+
+exports.checkIfUserBookedTour = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+  const tourId = req.params.tourId;
+
+  const booking = await Booking.findOne({ user: userId, tour: tourId });
+  if (!booking) {
+    return next(new AppError("You need Book this tour in order to reivew"));
+  }
+
+  next()
+});
