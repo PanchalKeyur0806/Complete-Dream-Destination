@@ -9,6 +9,7 @@ function AdminPanel() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [users, setUsers] = useState([]);
+  const [totalUsers, setTotalUsers] = useState(0);
 
   // Fetch user role to check if logged in as admin
   useEffect(() => {
@@ -39,25 +40,45 @@ function AdminPanel() {
   // Fetch total revenue (only if admin)
   useEffect(() => {
     if (isAdmin) {
-      const fetchTotalRevenue = async () => {
+      const fetchTotalData = async () => {
         try {
-          const response = await axios.get(
+          // Fetch total revenue
+          const revenueResponse = await axios.get(
             "http://localhost:8000/api/bookings/totalrevenue",
             { withCredentials: true }
           );
 
-          if (response.data.status === "success") {
-            console.log("Total revenue fetched:", response.data.data.revenue);
-            setTotalRevenue(response.data.data.revenue);
+          if (revenueResponse.data.status === "success") {
+            console.log(
+              "Total revenue fetched:",
+              revenueResponse.data.data.revenue
+            );
+            setTotalRevenue(revenueResponse.data.data.revenue);
           } else {
-            console.error("Failed to fetch revenue:", response.data);
+            console.error("Failed to fetch revenue:", revenueResponse.data);
+          }
+
+          // Fetch total users
+          const usersResponse = await axios.get(
+            "http://localhost:8000/api/users/totalusers",
+            { withCredentials: true }
+          );
+
+          if (usersResponse.data.status === "success") {
+            console.log(
+              "Total users fetched:",
+              usersResponse.data.allUsers[0].users
+            );
+            setTotalUsers(usersResponse.data.allUsers[0].users);
+          } else {
+            console.error("Failed to fetch total users:", usersResponse.data);
           }
         } catch (error) {
-          console.error("Error fetching total revenue:", error);
+          console.error("Error fetching data:", error);
         }
       };
 
-      fetchTotalRevenue();
+      fetchTotalData();
     }
   }, [isAdmin]);
 
@@ -144,8 +165,8 @@ function AdminPanel() {
                 </div>
               </div>
               <div className="card-body">
-                <h2>{users.length}</h2>
-                <p>+5% from last month</p>
+                <h2>{totalUsers !== null ? totalUsers : "No users found"}</h2>
+                {/* <p>+5% from last month</p> */}
               </div>
             </div>
             <div className="card">
