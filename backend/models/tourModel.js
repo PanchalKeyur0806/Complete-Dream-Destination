@@ -130,6 +130,27 @@ tourSchema.pre("save", async function (next) {
   next();
 });
 
+// total tours counting
+tourSchema.statics.totalTours = async function () {
+  const allTours = await this.aggregate([
+    {
+      $match: { status: { $ne: false } },
+    },
+    {
+      $group: {
+        _id: null,
+        totalTours: { $sum: 1 },
+      },
+    },
+  ]);
+
+  if (allTours.length === 0) return 0;
+
+  console.log("total tours is ", allTours[0].totalTours);
+
+  return allTours[0].totalTours;
+};
+
 // MADE MODAL OUTOF TOURSCHEMA
 const Tour = mongoose.model("Tour", tourSchema);
 

@@ -141,3 +141,13 @@ exports.deleteTour = catchAsync(async (req, res, next) => {
     deletedTour,
   });
 });
+
+// get total tours
+exports.getTotalTours = catchAsync(async (req, res, next) => {
+  const getAllTours = await Tour.totalTours();
+
+  res.status(200).json({
+    status: "success",
+    getAllTours,
+  });
+});
