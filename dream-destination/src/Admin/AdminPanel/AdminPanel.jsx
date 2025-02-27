@@ -1,17 +1,68 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import "./AdminPanel.css";
 
 function AdminPanel() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [totalRevenue, setTotalRevenue] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [users, setUsers] = useState([]);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  // Fetch user role to check if logged in as admin
+  useEffect(() => {
+    const fetchAdminStatus = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/users/me", {
+          withCredentials: true,
+        });
 
-  const closeSidebar = () => {
-    setIsSidebarOpen(false);
-  };
+        if (
+          response.data?.status === "success" &&
+          response.data?.data?.role === "admin"
+        ) {
+          console.log("response data.......", response.data.data);
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
+      } catch (error) {
+        console.error("Error fetching admin status:", error);
+        setIsAdmin(false);
+      }
+    };
+
+    fetchAdminStatus();
+  }, []);
+
+  // Fetch total revenue (only if admin)
+  useEffect(() => {
+    if (isAdmin) {
+      const fetchTotalRevenue = async () => {
+        try {
+          const response = await axios.get(
+            "http://localhost:8000/api/bookings/totalrevenue",
+            { withCredentials: true }
+          );
+
+          if (response.data.status === "success") {
+            console.log("Total revenue fetched:", response.data.data.revenue);
+            setTotalRevenue(response.data.data.revenue);
+          } else {
+            console.error("Failed to fetch revenue:", response.data);
+          }
+        } catch (error) {
+          console.error("Error fetching total revenue:", error);
+        }
+      };
+
+      fetchTotalRevenue();
+    }
+  }, [isAdmin]);
+
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  const closeSidebar = () => setIsSidebarOpen(false);
 
   return (
     <>
@@ -25,38 +76,32 @@ function AdminPanel() {
         <ul className="nav-items">
           <li className="nav-item">
             <Link to="/admin" className="nav-link" onClick={closeSidebar}>
-              <i className="fas fa-chart-line"></i>
-              Overview
+              <i className="fas fa-chart-line"></i> Overview
             </Link>
           </li>
           <li className="nav-item">
             <Link to="/user" className="nav-link" onClick={closeSidebar}>
-              <i className="fas fa-users"></i>
-              Manage Users
+              <i className="fas fa-users"></i> Manage Users
             </Link>
           </li>
           <li className="nav-item">
             <Link to="/package" className="nav-link" onClick={closeSidebar}>
-              <i className="fas fa-box"></i>
-              Packages
+              <i className="fas fa-box"></i> Packages
             </Link>
           </li>
           <li className="nav-item">
             <Link to="/payment" className="nav-link" onClick={closeSidebar}>
-              <i className="fas fa-credit-card"></i>
-              Payments
+              <i className="fas fa-credit-card"></i> Payments
             </Link>
           </li>
           <li className="nav-item">
             <Link to="/feedback" className="nav-link" onClick={closeSidebar}>
-              <i className="fas fa-comments"></i>
-              Feedback
+              <i className="fas fa-comments"></i> Feedback
             </Link>
           </li>
           <li className="nav-item">
             <Link to="/contacts" className="nav-link" onClick={closeSidebar}>
-              <i className="fas fa-comments"></i>
-              Contacts
+              <i className="fas fa-comments"></i> Contacts
             </Link>
           </li>
         </ul>
@@ -68,99 +113,71 @@ function AdminPanel() {
             <i className="fas fa-bars"></i>
           </div>
           <div className="user-info">
-            <i className="fas fa-user"></i>
-            Admin
+            <i className="fas fa-user"></i> {isAdmin ? "Admin" : "Guest"}
           </div>
         </div>
 
-        <div className="overview-cards">
-          <div className="card">
-            <div className="card-header">
-              <h3>Total Revenue</h3>
-              <div className="card-icon revenue">
-                <i className="fas fa-dollar-sign"></i>
+        {isAdmin ? (
+          <div className="overview-cards">
+            <div className="card">
+              <div className="card-header">
+                <h3>Total Revenue</h3>
+                <div className="card-icon revenue">
+                  <i className="fas fa-dollar-sign"></i>
+                </div>
+              </div>
+              <div className="card-body">
+                <h2>
+                  $
+                  {totalRevenue !== null
+                    ? totalRevenue.toLocaleString()
+                    : "Loading..."}
+                </h2>
+                <p>+12% from last month</p>
               </div>
             </div>
-            <div className="card-body">
-              <h2>$45,250</h2>
-              <p>+12% from last month</p>
-            </div>
-          </div>
-          <div className="card">
-            <div className="card-header">
-              <h3>Active Users</h3>
-              <div className="card-icon users">
-                <i className="fas fa-users"></i>
+            <div className="card">
+              <div className="card-header">
+                <h3>Active Users</h3>
+                <div className="card-icon users">
+                  <i className="fas fa-users"></i>
+                </div>
+              </div>
+              <div className="card-body">
+                <h2>{users.length}</h2>
+                <p>+5% from last month</p>
               </div>
             </div>
-            <div className="card-body">
-              <h2>1,250</h2>
-              <p>+5% from last month</p>
-            </div>
-          </div>
-          <div className="card">
-            <div className="card-header">
-              <h3>Total Packages</h3>
-              <div className="card-icon packages">
-                <i className="fas fa-box"></i>
+            <div className="card">
+              <div className="card-header">
+                <h3>Total Packages</h3>
+                <div className="card-icon packages">
+                  <i className="fas fa-box"></i>
+                </div>
+              </div>
+              <div className="card-body">
+                <h2>85</h2>
+                <p>+3 new packages</p>
               </div>
             </div>
-            <div className="card-body">
-              <h2>85</h2>
-              <p>+3 new packages</p>
-            </div>
-          </div>
-          <div className="card">
-            <div className="card-header">
-              <h3>Feedback</h3>
-              <div className="card-icon feedback">
-                <i className="fas fa-comments"></i>
+            <div className="card">
+              <div className="card-header">
+                <h3>Feedback</h3>
+                <div className="card-icon feedback">
+                  <i className="fas fa-comments"></i>
+                </div>
+              </div>
+              <div className="card-body">
+                <h2>4.8/5</h2>
+                <p>Based on 450 reviews</p>
               </div>
             </div>
-            <div className="card-body">
-              <h2>4.8/5</h2>
-              <p>Based on 450 reviews</p>
-            </div>
           </div>
-        </div>
-
-        <div className="table-container">
-          <h2>User Insights</h2>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Package</th>
-                <th>Bookings</th>
-                <th>Total Spend</th>
-                <th>Last Active</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td data-label="Name">John Doe</td>
-                <td data-label="Package">Bali Adventure</td>
-                <td data-label="Bookings">3</td>
-                <td data-label="Total Spend">$4,500</td>
-                <td data-label="Last Active">2 days ago</td>
-                <td data-label="Status">
-                  <span className="status active">Active</span>
-                </td>
-              </tr>
-              <tr>
-                <td data-label="Name">Jane Smith</td>
-                <td data-label="Package">Paris Explorer</td>
-                <td data-label="Bookings">2</td>
-                <td data-label="Total Spend">$3,200</td>
-                <td data-label="Last Active">1 week ago</td>
-                <td data-label="Status">
-                  <span className="status inactive">Inactive</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        ) : (
+          <p className="error-message">
+            Access denied. You must be an admin to view this page.
+          </p>
+        )}
       </main>
     </>
   );
