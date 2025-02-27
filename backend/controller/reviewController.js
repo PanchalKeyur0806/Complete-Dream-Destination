@@ -41,19 +41,24 @@ exports.getAllReview = catchAsync(async (req, res, next) => {
   let searchQuery = new SearchHelper(Review.find(), req.query).searchByField(
     "review"
   );
-  let reviews = await searchQuery.query;
-  console.log(reviews);
 
-  if (!reviews) {
+  // Check if `tourId` is provided in params and filter accordingly
+  if (req.params.tourId) {
+    searchQuery.query = searchQuery.query.where({ tour: req.params.tourId });
+  }
+
+  let reviews = await searchQuery.query;
+
+  if (!reviews.length) {
     return next(new AppError("Reviews not found", 400));
   }
 
-  const formatedReviews = reviews.map(formatReviews);
+  const formattedReviews = reviews.map(formatReviews);
 
   res.status(200).json({
     status: "success",
-    length: formatedReviews.length,
-    data: formatedReviews,
+    length: formattedReviews.length,
+    data: formattedReviews,
   });
 });
 

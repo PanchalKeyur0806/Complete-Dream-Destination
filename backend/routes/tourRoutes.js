@@ -8,12 +8,7 @@ const routes = express.Router();
 
 routes.get("/totaltours", tourController.getTotalTours);
 //
-routes.use(
-  "/:tourId/reviews",
-  authController.protect,
-  bookingController.checkIfUserBookedTour,
-  reviewRouter
-);
+routes.use("/:tourId/reviews", reviewRouter);
 
 //
 
