@@ -10,6 +10,7 @@ import {
   SlStar,
 } from "react-icons/sl";
 import "./TourItem.css";
+import Reviews from "../Reviews/Reviews"; // Import the new Reviews component
 
 const TourItem = () => {
   const { id } = useParams();
@@ -61,6 +62,8 @@ const TourItem = () => {
   }, []);
 
   const handleBooking = async () => {
+    // ... rest of the code remains the same
+    // (I'm keeping this comment for brevity but would not include it in a real code artifact)
     let finalUserId = userId;
 
     if (!finalUserId) {
@@ -433,6 +436,9 @@ const TourItem = () => {
           </div>
         </div>
       </div>
+
+      {/* Add the Reviews component */}
+      <Reviews tourId={id} />
     </div>
   );
 };
