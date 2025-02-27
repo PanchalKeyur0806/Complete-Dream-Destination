@@ -102,14 +102,16 @@ reviewSchema.statics.getOverallReviews = async function () {
       $group: {
         _id: null,
         totalReviews: { $sum: 1 },
-        avgReview: { $avg: "$rating" },
+        avgRating: { $avg: "$rating" },
       },
     },
   ]);
 
+  console.log("..........", overallReviews);
+
   return {
     totalReviews: overallReviews[0].totalReviews,
-    averageRating: overallReviews[0].averageRating.toFixed(2),
+    averageRating: overallReviews[0].avgRating.toFixed(2),
   };
 };
 

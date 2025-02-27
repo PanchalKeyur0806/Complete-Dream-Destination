@@ -11,6 +11,7 @@ function AdminPanel() {
   const [totalRevenue, setTotalRevenue] = useState(null);
   const [totalUsers, setTotalUsers] = useState(0);
   const [totalTours, setTotalTours] = useState(0);
+  const [averageRating, setAverageRating] = useState(0);
 
   // Fetch user role to check if logged in as admin
   useEffect(() => {
@@ -84,6 +85,20 @@ function AdminPanel() {
             setTotalTours(toursResponse.data.getAllTours);
           } else {
             console.error("Failed to fetch total tours:", toursResponse.data);
+          }
+
+          const reviewsResponse = await axios.get(
+            "http://localhost:8000/api/reviews/totalreviews",
+            { withCredentials: true }
+          );
+
+          if (reviewsResponse.data.status === "success") {
+            setAverageRating(reviewsResponse.data.overallReivews.averageRating);
+          } else {
+            console.error(
+              "Failed to fetch total reviews:",
+              reviewsResponse.data
+            );
           }
         } catch (error) {
           console.error("Error fetching data:", error);
@@ -203,7 +218,10 @@ function AdminPanel() {
                 </div>
               </div>
               <div className="card-body">
-                <h2>4.8/5</h2>
+                <h2>
+                  {averageRating !== null ? averageRating : "No reivews found"}
+                  /5
+                </h2>
                 <p>Based on 450 reviews</p>
               </div>
             </div>
