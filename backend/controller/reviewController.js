@@ -128,3 +128,13 @@ exports.deleteReview = catchAsync(async (req, res, next) => {
     data: null,
   });
 });
+
+// get overall reviews
+exports.overAllReviews = catchAsync(async (req, res, next) => {
+  const overallReivews = await Review.getOverallReviews();
+
+  res.status(200).json({
+    status: "success",
+    overallReivews,
+  });
+});

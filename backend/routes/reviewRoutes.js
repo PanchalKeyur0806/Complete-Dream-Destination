@@ -6,6 +6,8 @@ const authController = require("../controller/authController");
 
 const routes = express.Router({ mergeParams: true });
 
+routes.get("/totalreviews", reviewController.overAllReviews);
+
 routes.use(authController.protect);
 
 routes

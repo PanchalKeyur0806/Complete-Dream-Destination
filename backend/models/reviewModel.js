@@ -95,6 +95,24 @@ reviewSchema.post(/^findOneAnd/, async function (doc) {
   }
 });
 
+// get overAll reviews
+reviewSchema.statics.getOverallReviews = async function () {
+  const overallReviews = await this.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalReviews: { $sum: 1 },
+        avgReview: { $avg: "$rating" },
+      },
+    },
+  ]);
+
+  return {
+    totalReviews: overallReviews[0].totalReviews,
+    averageRating: overallReviews[0].averageRating.toFixed(2),
+  };
+};
+
 // create a model outof schema
 const Review = mongoose.model("Review", reviewSchema);
 
