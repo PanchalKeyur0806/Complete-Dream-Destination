@@ -222,7 +222,7 @@ function AdminPanel() {
                   {averageRating !== null ? averageRating : "No reivews found"}
                   /5
                 </h2>
-                <p>Based on 450 reviews</p>
+                {/* <p>Based on {}</p> */}
               </div>
             </div>
           </div>
