@@ -5,11 +5,12 @@ import "./AdminPanel.css";
 
 function AdminPanel() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [totalRevenue, setTotalRevenue] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [users, setUsers] = useState([]);
+  const [totalRevenue, setTotalRevenue] = useState(null);
   const [totalUsers, setTotalUsers] = useState(0);
+  const [totalTours, setTotalTours] = useState(0);
 
   // Fetch user role to check if logged in as admin
   useEffect(() => {
@@ -72,6 +73,17 @@ function AdminPanel() {
             setTotalUsers(usersResponse.data.allUsers[0].users);
           } else {
             console.error("Failed to fetch total users:", usersResponse.data);
+          }
+
+          const toursResponse = await axios.get(
+            "http://localhost:8000/api/tours/totaltours",
+            { withCredentials: true }
+          );
+
+          if (toursResponse.data.status === "success") {
+            setTotalTours(toursResponse.data.getAllTours);
+          } else {
+            console.error("Failed to fetch total tours:", toursResponse.data);
           }
         } catch (error) {
           console.error("Error fetching data:", error);
@@ -177,8 +189,10 @@ function AdminPanel() {
                 </div>
               </div>
               <div className="card-body">
-                <h2>85</h2>
-                <p>+3 new packages</p>
+                <h2>
+                  {totalTours !== null ? totalTours : "No packages found"}
+                </h2>
+                {/* <p>+3 new packages</p> */}
               </div>
             </div>
             <div className="card">
