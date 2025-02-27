@@ -6,6 +6,8 @@ const routes = express.Router();
 
 routes.use(authController.protect);
 
+routes.route("/totalrevenue").get(bookingController.totalRevenue);
+
 routes
   .route("/")
   .get(authController.restrictTo("admin"), bookingController.getAllBooking);

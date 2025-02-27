@@ -68,6 +68,26 @@ bookingSchema.pre(/^find/, async function (next) {
   next();
 });
 
+bookingSchema.statics.getTotalRevenue = async function () {
+  const stats = await this.aggregate([
+    {
+      $match: {
+        status: { $ne: "cancelled" },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalPrice: { $sum: "$totalPrice" },
+      },
+    },
+  ]);
+
+  if (stats.length === 0) return 0;
+
+  return stats[0].totalPrice;
+};
+
 const Booking = mongoose.model("Booking", bookingSchema);
 
 module.exports = Booking;

@@ -5,6 +5,7 @@ const Tour = require("../models/tourModel");
 const SearchHelper = require("../utils/searchHelper");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
+const { stat } = require("fs");
 
 const formatBooking = (booking) => {
   return {
@@ -141,5 +142,17 @@ exports.checkIfUserBookedTour = catchAsync(async (req, res, next) => {
     return next(new AppError("You need Book this tour in order to reivew"));
   }
 
-  next()
+  next();
+});
+
+// TOTAL REVENUE OF BOOKING
+exports.totalRevenue = catchAsync(async (req, res, next) => {
+  const revenue = await Booking.getTotalRevenue();
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      revenue,
+    },
+  });
 });
