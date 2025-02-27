@@ -22,3 +22,16 @@ exports.getAllUser = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.totalActiveUser = catchAsync(async (req, res, next) => {
+  const allUsers = await User.totalUsers();
+
+  if (!allUsers) {
+    return next(new AppError("There are no users found", 400));
+  }
+
+  res.status(200).json({
+    status: "success",
+    allUsers,
+  });
+});

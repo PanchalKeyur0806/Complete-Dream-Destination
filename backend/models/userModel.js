@@ -82,6 +82,29 @@ userSchema.methods.createPasswordResetToken = function () {
   return resetToken;
 };
 
+// count total users
+userSchema.statics.totalUsers = async function () {
+  const allUsers = await this.aggregate([
+    {
+      $match: {
+        active: { $ne: false },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        users: { $sum: 1 },
+      },
+    },
+  ]);
+
+  if (allUsers.length === 0) return 0;
+
+  console.log("...........................", allUsers);
+
+  return allUsers;
+};
+
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;

@@ -4,6 +4,9 @@ const authController = require("../controller/authController");
 
 const routes = express.Router();
 
+// toatlUsers
+routes.get("/totalusers", userController.totalActiveUser);
+
 // forget password and reset password
 // for anyone
 routes.route("/forgotpassword").post(authController.forgetPassword);

@@ -133,7 +133,7 @@ function AdminPanel() {
                     ? totalRevenue.toLocaleString()
                     : "Loading..."}
                 </h2>
-                <p>+12% from last month</p>
+                {/* <p>+12% from last month</p> */}
               </div>
             </div>
             <div className="card">
