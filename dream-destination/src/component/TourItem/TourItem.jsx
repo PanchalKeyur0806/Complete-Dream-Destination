@@ -20,6 +20,13 @@ const TourItem = () => {
   const [error, setError] = useState("");
   const [userId, setUserId] = useState(null);
   const [hasBooked, setHasBooked] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [review, setReview] = useState({
+    rating: 5,
+    review: "",
+  });
+  const [reviewError, setReviewError] = useState("");
+  const [reviewSuccess, setReviewSuccess] = useState(false);
 
   // Fetch tour details
   useEffect(() => {
@@ -61,7 +68,7 @@ const TourItem = () => {
         const response = await axios.get("http://localhost:8000/api/users/me", {
           withCredentials: true,
         });
-        finalUserId = response.data.data._id; // Updated to match the structure used earlier
+        finalUserId = response.data.data._id;
       } catch (error) {
         setError("You must be logged in to book a tour.");
         return;
@@ -90,11 +97,20 @@ const TourItem = () => {
 
       if (existingBooking.data.alreadyBooked) {
         setError("You have already booked this tour.");
-        setHasBooked(true); // Make sure to update the state
+        setHasBooked(true);
         return;
       }
 
-      // If not booked, proceed with booking
+      // Confirmation before booking
+      const isConfirmed = window.confirm(
+        "Do you really want to book this tour?"
+      );
+      if (!isConfirmed) {
+        setError("Booking was not successful.");
+        return;
+      }
+
+      // Proceed with booking if confirmed
       await axios.post(
         `http://localhost:8000/api/bookings/${id}`,
         {
@@ -104,8 +120,8 @@ const TourItem = () => {
         { withCredentials: true }
       );
 
-      setHasBooked(true); // Update the state after successful booking
-      navigate("/booking-success");
+      setHasBooked(true);
+      navigate("/");
     } catch (err) {
       setError("Booking failed. Please try again.");
     }
@@ -164,6 +180,66 @@ const TourItem = () => {
       checkBooking();
     }
   }, [userId, id]);
+
+  // Handle review form input changes
+  const handleReviewChange = (e) => {
+    const { name, value } = e.target;
+    setReview({
+      ...review,
+      [name]: value,
+    });
+  };
+
+  // Handle review submission
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    setReviewError("");
+    setReviewSuccess(false);
+
+    if (!review.review.trim()) {
+      setReviewError("Please enter your review text");
+      return;
+    }
+
+    if (review.rating < 1 || review.rating > 5) {
+      setReviewError("Rating must be between 1 and 5");
+      return;
+    }
+
+    try {
+      console.log("id is.........................", id);
+      await axios.post(
+        `http://localhost:8000/api/tours/${id}/reviews`,
+        {
+          review: review.review,
+          rating: review.rating,
+        },
+        { withCredentials: true }
+      );
+
+      // Show success message
+      setReviewSuccess(true);
+
+      // Reset the form
+      setReview({
+        rating: 5,
+        review: "",
+      });
+
+      // Hide the form after success
+      setShowReviewForm(false);
+
+      // Refresh tour data to update ratings
+      const tourData = await getTourById(id);
+      setTour(tourData);
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      setReviewError(
+        error.response?.data?.message ||
+          "Failed to submit review. Please try again."
+      );
+    }
+  };
 
   if (loading) {
     return (
@@ -268,9 +344,72 @@ const TourItem = () => {
                 <p className="already-booked-message">
                   ✅ You have already booked this tour.
                 </p>
-                <button className="cancel-button" onClick={handleCancelBooking}>
-                  Cancel Booking
-                </button>
+                <div className="booking-actions">
+                  <button
+                    className="cancel-button"
+                    onClick={handleCancelBooking}
+                  >
+                    Cancel Booking
+                  </button>
+
+                  <button
+                    className="review-button"
+                    onClick={() => setShowReviewForm(!showReviewForm)}
+                  >
+                    {showReviewForm ? "Hide Review Form" : "Leave a Review"}
+                  </button>
+                </div>
+
+                {reviewSuccess && (
+                  <p className="review-success-message">
+                    ✅ Thank you for your review!
+                  </p>
+                )}
+
+                {showReviewForm && (
+                  <div className="review-form-container">
+                    <h3>Share Your Experience</h3>
+                    <form onSubmit={handleReviewSubmit} className="review-form">
+                      <div className="form-group">
+                        <label htmlFor="rating">Rating (1-5):</label>
+                        <select
+                          id="rating"
+                          name="rating"
+                          value={review.rating}
+                          onChange={handleReviewChange}
+                          className="rating-select"
+                        >
+                          <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                          <option value="4">⭐⭐⭐⭐ (4)</option>
+                          <option value="3">⭐⭐⭐ (3)</option>
+                          <option value="2">⭐⭐ (2)</option>
+                          <option value="1">⭐ (1)</option>
+                        </select>
+                      </div>
+
+                      <div className="form-group">
+                        <label htmlFor="review">Your Review:</label>
+                        <textarea
+                          id="review"
+                          name="review"
+                          value={review.review}
+                          onChange={handleReviewChange}
+                          placeholder="Share your experience with this tour..."
+                          className="review-textarea"
+                          rows="4"
+                        ></textarea>
+                      </div>
+
+                      {reviewError && (
+                        <p className="error-text">{reviewError}</p>
+                      )}
+
+                      <button type="submit" className="submit-review-button">
+                        Submit Review
+                      </button>
+                    </form>
+                  </div>
+                )}
               </>
             ) : (
               <>
