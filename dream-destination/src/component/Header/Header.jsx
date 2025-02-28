@@ -45,13 +45,18 @@ function Header({ onSearch }) {
               />
             </div>
             <div className="col">
-              <label htmlFor="date">Select your date:</label>
+              <label htmlFor="date">Check in</label>
               <input type="date" className="form-control" id="date" />
             </div>
             <div className="col">
-              <label htmlFor="price">Max Price:</label>
-              <input type="range" className="form-control" id="price" />
+              <label htmlFor="price">Check out</label>
+              <input type="date" className="form-control" id="date" />
             </div>
+            <div className="col">
+              <label htmlFor="price">Guest</label>
+              <input type="number" className="form-control" id="price" />
+            </div>
+            
           </form>
         </div>
       </div>
