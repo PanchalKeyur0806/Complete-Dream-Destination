@@ -114,6 +114,7 @@ const TourItem = () => {
       }
 
       // Proceed with booking if confirmed
+      console.log("id is..............", id);
       await axios.post(
         `http://localhost:8000/api/bookings/${id}`,
         {
@@ -126,7 +127,7 @@ const TourItem = () => {
       setHasBooked(true);
       navigate("/");
     } catch (err) {
-      setError("Booking failed. Please try again.");
+      setError(err.response.data.message);
     }
   };
 

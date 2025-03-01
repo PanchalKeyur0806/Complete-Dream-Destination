@@ -14,7 +14,7 @@ routes
 routes
   .route("/:tourId")
   .get(bookingController.getBooking)
-  .post(bookingController.createBooking);
+  .post(authController.restrictTo("user"), bookingController.createBooking);
 
 routes.get(
   "/check-booking/:userId/:tourId",

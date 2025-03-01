@@ -56,6 +56,17 @@ exports.createBooking = catchAsync(async (req, res, next) => {
     return next(new AppError("Tour does not exists", 400));
   }
 
+  // check tourstardate
+  let currentDate = new Date();
+  if (new Date(tour.startDate) <= currentDate) {
+    return next(
+      new AppError(
+        "you can't book this tour because this tour is already running",
+        400
+      )
+    );
+  }
+
   const booking = await Booking.create({
     tour: tourId,
     user: userId,
