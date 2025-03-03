@@ -24,6 +24,14 @@ const bookingSchema = mongoose.Schema({
   paymentId: {
     type: String,
     unique: true,
+    required: function () {
+      return this.status === "confirmed";
+    },
+  },
+  paymentStatus: {
+    type: String,
+    enum: ["pending", "paid", "fail", "refunded"],
+    default: "pending",
   },
   bookingAt: {
     type: Date,
@@ -50,8 +58,10 @@ bookingSchema.pre("save", async function (next) {
     );
   }
 
-  this.totalPrice = this.numberOfGuests * tour.price;
-  console.log("Total price of your booking is ", this.totalPrice);
+  if (!this.totalPrice) {
+    this.totalPrice = this.numberOfGuests * tour.price;
+    console.log("Total price of your booking is ", this.totalPrice);
+  }
 
   next();
 });

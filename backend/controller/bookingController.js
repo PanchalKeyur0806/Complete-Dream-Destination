@@ -1,11 +1,14 @@
 const crypto = require("crypto");
+const dotenv = require("dotenv");
+
+dotenv.config({ path: "./config.env" });
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const moment = require("moment-timezone");
 const Booking = require("../models/bookingModel");
 const Tour = require("../models/tourModel");
 const SearchHelper = require("../utils/searchHelper");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
-const { stat } = require("fs");
 
 const formatBooking = (booking) => {
   return {
@@ -38,49 +41,64 @@ exports.getAllBooking = catchAsync(async (req, res, next) => {
 // create booking
 exports.createBooking = catchAsync(async (req, res, next) => {
   const { tourId } = req.params;
-  const userId = req.user.id;
+  const { _id, email } = req.user;
   const { numberOfGuests } = req.body;
 
-  let paymentId;
-  let isUnique = false;
-
-  while (!isUnique) {
-    paymentId = "PAY -" + crypto.randomBytes(8).toString("hex");
-    const existingBooking = await Booking.findOne({ paymentId });
-
-    if (!existingBooking) isUnique = true;
+  if (!tourId || !_id || !numberOfGuests) {
+    return next(new AppError("Missing required fields", 400));
   }
 
   const tour = await Tour.findById(tourId);
   if (!tour) {
-    return next(new AppError("Tour does not exists", 400));
+    return next(new AppError("Tour does not exist", 400));
   }
 
-  // check tourstardate
+  // Check if tour has already started
   let currentDate = new Date();
   if (new Date(tour.startDate) <= currentDate) {
     return next(
       new AppError(
-        "you can't book this tour because this tour is already running",
+        "You can't book this tour because it has already started",
         400
       )
     );
   }
 
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    mode: "payment",
+    customer_email: email,
+    line_items: [
+      {
+        price_data: {
+          currency: "inr",
+          product_data: {
+            name: tour.name,
+          },
+          unit_amount: tour.price * 100, // Convert to paise
+        },
+        quantity: numberOfGuests, // Ensure guests are considered
+      },
+    ],
+    success_url: `http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `http://localhost:5173/cancel`,
+  });
+
   const booking = await Booking.create({
     tour: tourId,
-    user: userId,
-    numberOfGuests: numberOfGuests,
-    paymentId: paymentId,
-    status: "confirmed",
+    user: _id,
+    numberOfGuests,
+    paymentId: session.id,
+    paymentStatus: "pending",
   });
 
   res.status(200).json({
     status: "success",
-    data: booking,
+    url: session.url, // Return only the session URL
+    booking,
   });
 });
-
+gi
 // get all booking
 exports.getBooking = catchAsync(async (req, res, next) => {
   const { tourId } = req.params;
