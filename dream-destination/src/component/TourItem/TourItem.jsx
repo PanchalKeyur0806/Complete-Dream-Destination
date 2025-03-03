@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { loadStripe } from "@stripe/stripe-js";
 import { useParams, useNavigate } from "react-router-dom";
 import { getTourById } from "../../Api/Api";
 import axios from "axios";
@@ -28,6 +29,10 @@ const TourItem = () => {
   });
   const [reviewError, setReviewError] = useState("");
   const [reviewSuccess, setReviewSuccess] = useState(false);
+
+  const stripePromise = loadStripe(
+    "pk_test_51QyBa5Jew3pnvwY4unWMn1eUpYpn8wBeh9ic06odV0WVo3tjabyxn7AXeHYmuvb3SsF2Q8HMgbqPNjs1o2PY0AxV00WjlFzK5D"
+  );
 
   // Fetch tour details
   useEffect(() => {
@@ -62,8 +67,6 @@ const TourItem = () => {
   }, []);
 
   const handleBooking = async () => {
-    // ... rest of the code remains the same
-    // (I'm keeping this comment for brevity but would not include it in a real code artifact)
     let finalUserId = userId;
 
     if (!finalUserId) {
@@ -91,11 +94,10 @@ const TourItem = () => {
     setError("");
 
     try {
+      // Check if the user has already booked this tour
       const existingBooking = await axios.get(
         `http://localhost:8000/api/bookings/check-booking/${finalUserId}/${id}`,
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
 
       if (existingBooking.data.alreadyBooked) {
@@ -104,7 +106,6 @@ const TourItem = () => {
         return;
       }
 
-      // Confirmation before booking
       const isConfirmed = window.confirm(
         "Do you really want to book this tour?"
       );
@@ -113,9 +114,8 @@ const TourItem = () => {
         return;
       }
 
-      // Proceed with booking if confirmed
-      console.log("id is..............", id);
-      await axios.post(
+      // 1. Create Stripe Checkout session
+      const { data } = await axios.post(
         `http://localhost:8000/api/bookings/${id}`,
         {
           user: finalUserId,
@@ -124,10 +124,12 @@ const TourItem = () => {
         { withCredentials: true }
       );
 
-      setHasBooked(true);
-      navigate("/");
+      console.log("data is .........................", data);
+
+      window.location.href = data.url;
     } catch (err) {
-      setError(err.response.data.message);
+      console.log("Error is.........................", err);
+      setError(err.response?.data?.message || "Something went wrong!");
     }
   };
 

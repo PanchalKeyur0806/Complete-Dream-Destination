@@ -80,7 +80,7 @@ exports.createBooking = catchAsync(async (req, res, next) => {
         quantity: numberOfGuests, // Ensure guests are considered
       },
     ],
-    success_url: `http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}`,
+    success_url: `http://localhost:5173/`,
     cancel_url: `http://localhost:5173/cancel`,
   });
 
