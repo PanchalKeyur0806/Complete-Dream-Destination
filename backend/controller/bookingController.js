@@ -98,7 +98,7 @@ exports.createBooking = catchAsync(async (req, res, next) => {
     booking,
   });
 });
-gi
+
 // get all booking
 exports.getBooking = catchAsync(async (req, res, next) => {
   const { tourId } = req.params;
