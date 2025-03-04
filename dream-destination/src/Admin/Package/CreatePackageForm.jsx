@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const CreatePackageForm = ({ onSubmit, onCancel }) => {
+  const [guides, setGuides] = useState([]);
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -16,17 +18,34 @@ const CreatePackageForm = ({ onSubmit, onCancel }) => {
       coordinates: ["", ""], // [longitude, latitude]
     },
     hotel: "",
+    guides: [], // <-- Fix: Store guides as an array
     status: true,
   });
+
+  useEffect(() => {
+    fetch("http://localhost:8000/api/users/tour-guide", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to fetch guides");
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Guides fetched:", data);
+        setGuides(data.data); // Assuming API response has { data: guidesArray }
+      })
+      .catch((error) => console.error("Error fetching guides:", error));
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
 
     if (type === "file") {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: files[0],
-      }));
+      setFormData((prev) => ({ ...prev, [name]: files[0] }));
     } else if (name === "longitude" || name === "latitude") {
       setFormData((prev) => ({
         ...prev,
@@ -39,20 +58,22 @@ const CreatePackageForm = ({ onSubmit, onCancel }) => {
         },
       }));
     } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  // In CreatePackageForm.jsx
+  const handleGuideSelection = (e) => {
+    const selectedGuideId = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      guides: selectedGuideId ? [selectedGuideId] : [], // Store as an array
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const form = new FormData();
-
-    // Basic fields
     form.append("name", formData.name);
     form.append("description", formData.description);
     form.append("duration", formData.duration);
@@ -66,7 +87,7 @@ const CreatePackageForm = ({ onSubmit, onCancel }) => {
     form.append("startDate", formData.startDate);
     form.append("endDate", formData.endDate);
 
-    // Location data - stringify the entire location object
+    // Convert location to JSON string
     const locationData = {
       coordinates: [
         Number(formData.location.coordinates[0]),
@@ -80,7 +101,13 @@ const CreatePackageForm = ({ onSubmit, onCancel }) => {
       form.append("imageCover", formData.imageCover);
     }
 
-    // Optional hotel field
+    // Fix: Append guides as a properly formatted array
+    if (formData.guides.length > 0) {
+      formData.guides.forEach((guide) => {
+        form.append("guides[]", guide); // Each guide ID is sent separately
+      });
+    }
+
     if (formData.hotel) {
       form.append("hotel", formData.hotel);
     }
@@ -268,6 +295,21 @@ const CreatePackageForm = ({ onSubmit, onCancel }) => {
             onChange={handleInputChange}
             placeholder="Enter hotel ID"
           />
+        </div>
+
+        <div>
+          <label>Select a Guide:</label>
+          <select
+            onChange={handleGuideSelection}
+            value={formData.guides[0] || ""}
+          >
+            <option value="">-- Select a Guide --</option>
+            {guides.map((guide) => (
+              <option key={guide._id} value={guide._id}>
+                {guide.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="form-group">

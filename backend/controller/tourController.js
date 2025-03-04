@@ -56,7 +56,12 @@ exports.createTour = catchAsync(async (req, res, next) => {
       startDate,
       endDate,
       location,
+      guides,
     } = req.body;
+
+    const guidesArray =
+      typeof guides === "string" ? JSON.parse(guides) : guides;
+    console.log("guides array is .........", guidesArray);
 
     // Parse location data
     let locationData;
@@ -88,7 +93,7 @@ exports.createTour = catchAsync(async (req, res, next) => {
       startDate: new Date(startDate),
       endDate: new Date(endDate),
       imageCover,
-      guides: [], // Initialize empty if not provided
+      guides, // Initialize empty if not provided
     });
 
     if (!newTour) {

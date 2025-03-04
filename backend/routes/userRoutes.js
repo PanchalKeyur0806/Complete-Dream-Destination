@@ -20,7 +20,10 @@ routes.route("/me").get(authController.protect, authController.me);
 
 // for signup tour-guide
 // only admin can create tour guide
-routes.route("/tour-guide").post(authController.tourGuide);
+routes
+  .route("/tour-guide")
+  .post(authController.tourGuide)
+  .get(userController.fetchTourGuides);
 
 // get all user
 // only admin can access this route

@@ -35,3 +35,14 @@ exports.totalActiveUser = catchAsync(async (req, res, next) => {
     allUsers,
   });
 });
+
+// fetch all tour guides
+exports.fetchTourGuides = catchAsync(async (req, res, next) => {
+  const guides = await User.find({ role: "tour-guide" });
+
+  res.status(200).json({
+    status: "success",
+    length: guides.length,
+    data: guides,
+  });
+});

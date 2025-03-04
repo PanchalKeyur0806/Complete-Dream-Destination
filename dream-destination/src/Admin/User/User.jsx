@@ -199,6 +199,7 @@ function User() {
                     <th>User ID</th>
                     <th>Name</th>
                     <th>Email</th>
+                    <th>Role</th>
                     <th>Status</th>
                   </tr>
                 </thead>
@@ -209,6 +210,7 @@ function User() {
                         <td data-label="User ID">{user._id}</td>
                         <td data-label="Name">{user.name}</td>
                         <td data-label="Email">{user.email}</td>
+                        <td data-label="Email">{user.role}</td>
                         <td
                           data-label="Status"
                           className={
