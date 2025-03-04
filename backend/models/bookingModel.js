@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const Tour = require("./tourModel");
 const AppError = require("../utils/appError");
 
 const bookingSchema = mongoose.Schema({
@@ -42,6 +41,9 @@ const bookingSchema = mongoose.Schema({
 bookingSchema.index({ tour: 1, user: 1 }, { unique: true });
 
 bookingSchema.pre("save", async function (next) {
+  const mongoose = require("mongoose");
+  const Tour = mongoose.model("Tour");
+
   const tour = await Tour.findById(this.tour);
   if (!tour) {
     return next(new AppError("Tour not found", 400));

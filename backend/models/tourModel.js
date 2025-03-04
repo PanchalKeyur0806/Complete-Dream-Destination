@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 const Hotel = require("./hotelModel");
+const Review = require("./reviewModel");
+const Booking = require("./bookingModel");
 const { default: slugify } = require("slugify");
+const AppError = require("../utils/appError");
 
 const tourSchema = mongoose.Schema(
   {
@@ -94,6 +97,22 @@ tourSchema.virtual("review", {
   ref: "Review",
   foreignField: "tour",
   localField: "_id",
+});
+
+tourSchema.pre("findOneAndDelete", async function (next) {
+  const tourId = await this.getQuery()._id;
+
+  if (!tourId) {
+    return next(new AppError("Tour Id not found in query"));
+  }
+  await Review.deleteMany({ tour: tourId });
+
+  if (!Booking || Object.keys(Booking).length === 0) {
+    return next(new AppError("Booking model is not loaded properly"));
+  }
+  await Booking.deleteMany({ tour: tourId });
+
+  next();
 });
 
 // ADD SLUG BEFORE SAVING THE DOUCMENT
