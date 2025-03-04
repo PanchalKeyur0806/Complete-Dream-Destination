@@ -89,7 +89,7 @@ exports.createBooking = catchAsync(async (req, res, next) => {
     user: _id,
     numberOfGuests,
     paymentId: session.id,
-    paymentStatus: "pending",
+    status: "confirmed",
   });
 
   res.status(200).json({

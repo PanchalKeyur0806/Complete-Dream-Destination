@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import CreateGuideForm from "./CreateGuideForm";
 import { Link, useNavigate } from "react-router-dom";
 import "./User.css";
 
@@ -10,6 +10,8 @@ function User() {
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  // for creating the tour guide
+  const [showForm, setShowForm] = useState(false);
 
   // Fetch user role
   useEffect(() => {
@@ -62,13 +64,44 @@ function User() {
         })
         .then((data) => {
           setUsers(data.data.users);
-          console.log("Data of all users:", data.data.users);
         })
         .catch((error) => console.error("Error fetching users:", error));
     } else {
       setUsers([]);
     }
   }, [searchQuery, isAdmin]);
+
+  // creating guides
+
+  const handleCreateGuide = () => {
+    setShowForm(true);
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+  };
+
+  const handleSubmit = async (data) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/users/tour-guide",
+        data, // Send form data
+        {
+          withCredentials: true, // Include authentication if needed
+        }
+      );
+
+      // Fetch all users after adding a new guide
+      fetchUsers();
+
+      setShowForm(false);
+    } catch (error) {
+      console.error(
+        "Error creating guide:",
+        error.response ? error.response.data : error.message
+      );
+    }
+  };
 
   useEffect(() => {
     if (searchQuery) fetchUsers();
@@ -144,6 +177,17 @@ function User() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+        </div>
+
+        {/*  */}
+        <div>
+          {!showForm ? (
+            <div className="create-guides">
+              <button onClick={handleCreateGuide}>Create a Guide</button>
+            </div>
+          ) : (
+            <CreateGuideForm onCancel={handleCancel} onSubmit={handleSubmit} />
+          )}
         </div>
 
         <div className="container">

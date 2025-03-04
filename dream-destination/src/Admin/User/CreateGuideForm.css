@@ -1,0 +1,77 @@
+/* Guide Form Styles */
+.guide-form {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.guide-form label {
+    display: block;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.guide-form input {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    margin-top: 6px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+}
+
+.guide-form input:focus {
+    border-color: #4a90e2;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.guide-form button {
+    padding: 10px 16px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.guide-form button[type="submit"] {
+    background-color: #4a90e2;
+    color: white;
+    margin-right: 12px;
+}
+
+.guide-form button[type="submit"]:hover {
+    background-color: #3a7bc8;
+}
+
+.guide-form button[type="button"] {
+    background-color: #f2f2f2;
+    color: #333;
+}
+
+.guide-form button[type="button"]:hover {
+    background-color: #e5e5e5;
+}
+
+/* Add responsive styles */
+@media (max-width: 600px) {
+    .guide-form {
+        padding: 1.5rem;
+    }
+
+    .guide-form button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .guide-form button[type="submit"] {
+        margin-right: 0;
+    }
+}
