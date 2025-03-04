@@ -59,10 +59,6 @@ exports.createTour = catchAsync(async (req, res, next) => {
       guides,
     } = req.body;
 
-    const guidesArray =
-      typeof guides === "string" ? JSON.parse(guides) : guides;
-    console.log("guides array is .........", guidesArray);
-
     // Parse location data
     let locationData;
     try {
@@ -76,7 +72,8 @@ exports.createTour = catchAsync(async (req, res, next) => {
     }
 
     // Handle image
-    const imageCover = req.file ? req.file.filename : null;
+    const imageCover = req.file ? req.file.path : null;
+    console.log("imageCOver is........................", imageCover);
 
     // Create the tour
     const newTour = await Tour.create({
