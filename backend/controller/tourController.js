@@ -71,9 +71,15 @@ exports.createTour = catchAsync(async (req, res, next) => {
       return next(new AppError("Location coordinates are required", 400));
     }
 
+    const start = new Date(startDate);
+    console.log("start date is ,...............", start);
+    // calculate end date
+    const end = new Date(start);
+    end.setUTCDate(start.getUTCDate() + Number(duration));
+    console.log("end date is.................", end);
+
     // Handle image
     const imageCover = req.file ? req.file.path : null;
-    console.log("imageCOver is........................", imageCover);
 
     // Create the tour
     const newTour = await Tour.create({
@@ -88,7 +94,7 @@ exports.createTour = catchAsync(async (req, res, next) => {
       priceDiscount: priceDiscount ? Number(priceDiscount) : undefined,
       description,
       startDate: new Date(startDate),
-      endDate: new Date(endDate),
+      endDate: new Date(end),
       imageCover,
       guides, // Initialize empty if not provided
     });

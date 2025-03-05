@@ -236,7 +236,7 @@ const CreatePackageForm = ({ onSubmit, onCancel }) => {
             />
           </div>
 
-          <div className="form-group">
+          {/* <div className="form-group">
             <label htmlFor="endDate">
               End Date <span className="required">*</span>
             </label>
@@ -248,7 +248,7 @@ const CreatePackageForm = ({ onSubmit, onCancel }) => {
               onChange={handleInputChange}
               required
             />
-          </div>
+          </div> */}
         </div>
 
         <div className="form-row">
