@@ -71,6 +71,11 @@ exports.createBooking = catchAsync(async (req, res, next) => {
     payment_method_types: ["card"],
     mode: "payment",
     customer_email: email,
+    metadata: {
+      tourId,
+      userId: _id.toString(),
+      numberOfGuests,
+    },
     line_items: [
       {
         price_data: {
@@ -83,23 +88,55 @@ exports.createBooking = catchAsync(async (req, res, next) => {
         quantity: numberOfGuests, // Ensure guests are considered
       },
     ],
-    success_url: `http://localhost:5173/`,
+    success_url: `http://localhost:5173/booking-success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `http://localhost:5173/cancel`,
-  });
-
-  const booking = await Booking.create({
-    tour: tourId,
-    user: _id,
-    numberOfGuests,
-    paymentId: session.id,
-    status: "confirmed",
   });
 
   res.status(200).json({
     status: "success",
     url: session.url, // Return only the session URL
-    booking,
   });
+});
+
+// const create a booking after payment
+const createBookingAfterPayment = async (req, res, next) => {
+  const { tourId, userId, numberOfGuests } = session.metadata;
+
+  await Booking.create({
+    tour: tourId,
+    user: userId,
+    numberOfGuests,
+    paymentId: session.id,
+    status: "confirmed",
+  });
+};
+
+//
+exports.webhookHandler = catchAsync(async (req, res, next) => {
+  const signature = req.headers["stripe-signature"];
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch (err) {
+    res
+      .status(400)
+      .json({ status: "fail", message: `webhook error ${err.message}` });
+  }
+
+  if (event.type === `checkout.session.completed`) {
+    const session = event.data.object;
+
+    if (session.payment_status === "paid") {
+      await this.createBookingAfterPayment(session);
+    }
+  }
+
+  res.status(200).json({ status: "success", received: true });
 });
 
 // get all booking
@@ -115,6 +152,70 @@ exports.getBooking = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     data: formatedBooking,
+  });
+});
+
+// verify the payment
+// Add this to your bookingController.js file
+// Corrected controller function
+exports.verifyPayment = catchAsync(async (req, res, next) => {
+  const { sessionId } = req.params;
+
+  if (!sessionId) {
+    return next(new AppError("Session ID is required", 400));
+  }
+
+  // Retrieve the session from Stripe to verify its status
+  const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+  if (!session) {
+    return next(new AppError("Invalid session ID", 404));
+  }
+
+  // Check if payment was successful
+  if (session.payment_status !== "paid") {
+    return next(new AppError("Payment has not been completed", 400));
+  }
+
+  // Find the booking associated with this payment
+  const booking = await Booking.findOne({ paymentId: sessionId }).populate({
+    path: "tour",
+    select: "name",
+  });
+
+  if (!booking) {
+    // If webhook hasn't processed yet, create the booking now
+    if (
+      session.metadata &&
+      session.metadata.tourId &&
+      session.metadata.userId
+    ) {
+      const newBooking = await Booking.create({
+        tour: session.metadata.tourId,
+        user: session.metadata.userId,
+        numberOfGuests: session.metadata.numberOfGuests,
+        paymentId: session.id,
+        status: "confirmed",
+      });
+
+      // Populate the tour information
+      const populatedBooking = await Booking.findById(newBooking._id).populate({
+        path: "tour",
+        select: "name",
+      });
+
+      return res.status(200).json({
+        status: "success",
+        booking: populatedBooking,
+      });
+    }
+
+    return next(new AppError("Booking not found", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    booking,
   });
 });
 

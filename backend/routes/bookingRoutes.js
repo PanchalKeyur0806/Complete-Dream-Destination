@@ -16,6 +16,19 @@ routes
   .get(bookingController.getBooking)
   .post(authController.restrictTo("user"), bookingController.createBooking);
 
+routes.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  bookingController.webhookHandler
+);
+
+// verify payment route
+routes.get(
+  "/verify-payment/:sessionId",
+  authController.protect,
+  bookingController.verifyPayment
+);
+
 routes.get(
   "/check-booking/:userId/:tourId",
   bookingController.checkExistingBooking

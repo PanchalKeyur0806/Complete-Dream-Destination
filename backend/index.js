@@ -27,7 +27,23 @@ app.use(
     credentials: true,
   })
 );
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use(
+  "/uploads",
+  (req, res, next) => {
+    const cacheDuration = 60 * 60 * 24 * 7;
+
+    // Set cache control headers
+    res.set("Cache-Control", `public, max-age=${cacheDuration}`);
+    res.set(
+      "Expires",
+      new Date(Date.now() + cacheDuration * 1000).toUTCString()
+    );
+
+    // Continue to the next middleware (static file serving)
+    next();
+  },
+  express.static(path.join(__dirname, "uploads"))
+);
 
 // routes middleware
 app.use("/api/tours", tourRoutes);
