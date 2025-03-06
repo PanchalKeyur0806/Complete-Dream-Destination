@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 
 const UpdatePackageForm = ({ packageData, onSubmit, onCancel }) => {
+  const [guides, setGuides] = useState([]);
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -9,19 +11,48 @@ const UpdatePackageForm = ({ packageData, onSubmit, onCancel }) => {
     price: "",
     priceDiscount: "",
     startDate: "",
-    endDate: "",
+    // endDate removed
     imageCover: null,
     location: {
       type: "Point",
       coordinates: ["", ""],
     },
     hotel: "",
+    guides: [],
     status: true,
   });
 
   useEffect(() => {
+    fetch("http://localhost:8000/api/users/tour-guide", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to fetch guides");
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Guides fetched:", data);
+        setGuides(data.data); // Assuming API response has { data: guidesArray }
+      })
+      .catch((error) => console.error("Error fetching guides:", error));
+  }, []);
+
+  const handleGuideSelection = (e) => {
+    const selectedGuideId = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      guides: selectedGuideId ? [selectedGuideId] : [], // Store as an array
+    }));
+  };
+
+  useEffect(() => {
     if (packageData) {
       const formatDate = (dateString) => {
+        if (!dateString) return "";
         const date = new Date(dateString);
         return date.toISOString().split("T")[0];
       };
@@ -34,13 +65,18 @@ const UpdatePackageForm = ({ packageData, onSubmit, onCancel }) => {
         price: packageData.price || "",
         priceDiscount: packageData.priceDiscount || "",
         startDate: formatDate(packageData.startDate) || "",
-        endDate: formatDate(packageData.endDate) || "",
+        // endDate removed
         imageCover: null,
         location: packageData.location || {
           type: "Point",
           coordinates: ["", ""],
         },
         hotel: packageData.hotel || "",
+        // Fix: Initialize guides array from packageData
+        guides:
+          packageData.guides && packageData.guides.length > 0
+            ? [packageData.guides[0]._id || packageData.guides[0]]
+            : [],
         status: packageData.status ?? true,
       });
     }
@@ -82,12 +118,19 @@ const UpdatePackageForm = ({ packageData, onSubmit, onCancel }) => {
     Object.keys(formData).forEach((key) => {
       if (
         key !== "location" &&
+        key !== "guides" && // Handle guides separately
         formData[key] !== null &&
         formData[key] !== ""
       ) {
         form.append(key, formData[key]);
       }
     });
+
+    // Handle guides properly - send as a single string value
+    // This fixes the "split is not a function" error
+    if (formData.guides && formData.guides.length > 0) {
+      form.append("guides", formData.guides[0]);
+    }
 
     form.append("location[type]", "Point");
     form.append(
@@ -214,19 +257,7 @@ const UpdatePackageForm = ({ packageData, onSubmit, onCancel }) => {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="endDate">
-              End Date <span className="required">*</span>
-            </label>
-            <input
-              id="endDate"
-              type="date"
-              name="endDate"
-              value={formData.endDate}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
+          {/* endDate field completely removed */}
         </div>
 
         <div className="form-row">
@@ -259,6 +290,22 @@ const UpdatePackageForm = ({ packageData, onSubmit, onCancel }) => {
               required
             />
           </div>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="guide">Select a Guide:</label>
+          <select
+            id="guide"
+            onChange={handleGuideSelection}
+            value={formData.guides[0] || ""}
+          >
+            <option value="">-- Select a Guide --</option>
+            {guides.map((guide) => (
+              <option key={guide._id} value={guide._id}>
+                {guide.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="form-group">
