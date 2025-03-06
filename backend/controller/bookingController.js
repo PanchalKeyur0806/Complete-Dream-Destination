@@ -53,6 +53,9 @@ exports.createBooking = catchAsync(async (req, res, next) => {
     return next(new AppError("Tour does not exist", 400));
   }
 
+  const priceDiscount = tour.price - tour.priceDiscount;
+  console.log("Price discount is ...........", priceDiscount);
+
   // Check if tour has already started
   let currentDate = new Date();
   if (new Date(tour.startDate) <= currentDate) {
@@ -75,7 +78,7 @@ exports.createBooking = catchAsync(async (req, res, next) => {
           product_data: {
             name: tour.name,
           },
-          unit_amount: tour.price * 100, // Convert to paise
+          unit_amount: priceDiscount * 100, // Convert to paise
         },
         quantity: numberOfGuests, // Ensure guests are considered
       },
