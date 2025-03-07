@@ -37,7 +37,7 @@ const Home = () => {
     <div>
       <Header onSearch={setSearchTerm} />
       <ExploreMenu />
-      <TourDisplay tours={tours} /> {/* Pass tours as a prop */}
+      <TourDisplay tours={tours} />
       <AppDownload />
       <Footer />
     </div>

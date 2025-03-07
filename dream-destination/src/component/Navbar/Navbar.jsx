@@ -18,9 +18,7 @@ function Navbar({ setShowLogin }) {
       try {
         const response = await fetch("http://localhost:8000/api/users/me", {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           credentials: "include",
         });
 
@@ -47,8 +45,6 @@ function Navbar({ setShowLogin }) {
     fetchUserProfile();
   }, []);
 
-  // No dependency array needed
-
   const showNav = () => setActive("navBar activeNavbar");
   const removeNavbar = () => setActive("navBar");
 
@@ -66,22 +62,16 @@ function Navbar({ setShowLogin }) {
         credentials: "include",
       });
 
-      if (!response.ok) {
-        throw new Error("Logout failed");
-      }
+      if (!response.ok) throw new Error("Logout failed");
 
-      // Clear auth data
       Cookies.remove("jwt", { path: "/" });
       localStorage.removeItem("userName");
       setIsLoggedIn(false);
       setUserData(null);
       setShowLogin(false);
-
-      // Refresh page to reset all states
       window.location.reload();
     } catch (error) {
       console.error("Logout error:", error);
-      // Still clear data on frontend
       Cookies.remove("jwt", { path: "/" });
       localStorage.removeItem("userName");
       setIsLoggedIn(false);
@@ -99,14 +89,14 @@ function Navbar({ setShowLogin }) {
       <div className={active}>
         <ul className="navbar-menu mt-3">
           <Link
-            to="/"
+            to={userData?.role === "admin" ? "/admin" : "/"}
             onClick={() => {
               setMenu("home");
               removeNavbar();
             }}
             className={menu === "home" ? "active" : ""}
           >
-            Home
+            {userData?.role === "admin" ? "Admin" : "Home"}
           </Link>
           <Link
             to="/explore"
