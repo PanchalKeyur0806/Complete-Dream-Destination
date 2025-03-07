@@ -4,6 +4,7 @@ import Header from "../../component/Header/Header";
 import ExploreMenu from "../../component/ExploreMenu/ExploreMenu";
 import TourDisplay from "../../component/TourDisplay/TourDisplay";
 import AppDownload from "../../component/AppDownload/AppDownload";
+import Footer from "../../component/Footer/Footer";
 
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,6 +39,7 @@ const Home = () => {
       <ExploreMenu />
       <TourDisplay tours={tours} /> {/* Pass tours as a prop */}
       <AppDownload />
+      <Footer />
     </div>
   );
 };
