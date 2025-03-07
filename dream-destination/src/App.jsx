@@ -19,6 +19,7 @@ import ContactForm from "./component/ContactForm/ContactForm";
 import TourItem from "./component/TourItem/TourItem";
 import BookingSuccess from "./component/BookingSuccess/BookingSuccess";
 import BookedTours from "./component/BookedTour/BookedTour";
+import NotFound from "./component/NotFound/NotFound";
 
 
 const App = () => {
@@ -64,6 +65,7 @@ const App = () => {
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/user" element={<User />} />
           <Route path="/tour/:id" element={<TourItem />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </>

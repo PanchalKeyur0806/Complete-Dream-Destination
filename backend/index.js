@@ -14,6 +14,7 @@ const bookingRoutes = require("./routes/bookingRoutes");
 
 // ERROR HANDLING
 const globalErrorHandler = require("./controller/errController");
+const AppError = require("./utils/appError");
 
 // create an express() app
 const app = express();
@@ -52,6 +53,10 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/hotel", hotelRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/contact", contactRoutes);
+
+app.all("*", (req, res, next) => {
+  next(new AppError(`can't find ${req.originalUrl} url`, 404))
+})
 
 // use this middleware for error handling
 app.use(globalErrorHandler);
