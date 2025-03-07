@@ -1,12 +1,17 @@
+/* Base Navbar Styling */
 .navbar {
     display: flex;
-    padding: 20px 0px;
+    padding: 20px 15px;
     justify-content: space-between;
     align-items: center;
+    position: relative;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background-color: white;
 }
 
 .navbar .logo {
     width: 250px;
+    height: auto;
 }
 
 .navbar-menu {
@@ -15,34 +20,38 @@
     gap: 20px;
     color: #49557e;
     font-size: 18px;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar-menu a {
+    text-decoration: none;
+    color: #49557e;
+    transition: color 0.3s ease;
+    padding-bottom: 5px;
+    position: relative;
+}
+
+.navbar-menu a:hover {
+    color: #ff4d4d;
+}
+
+.navbar-menu .active {
+    padding-bottom: 2px;
+    border-bottom: 2px solid #49557e;
+    font-weight: 500;
 }
 
 .navbar-right {
     display: flex;
     align-items: center;
-    gap: 40px;
+    gap: 25px;
 }
 
-.navbar button {
-    background: transparent;
-    border-radius: 50px;
-    font-size: 16px;
-    padding: 10px 30px;
-    border: 1px solid tomato;
-    color: #49557e;
-    cursor: pointer;
-}
-
-.navbar button {
-    background-color: #fff4f2;
-}
-
-.navbar .active {
-    padding-bottom: 2px;
-    border-bottom: 2px solid #49557e;
-}
-
-.navbar li {
+.navbar-right .icon {
+    width: 24px;
+    height: 24px;
     cursor: pointer;
 }
 
@@ -55,19 +64,12 @@
     min-width: 10px;
     min-height: 10px;
     background-color: tomato;
-    border-radius: 5px;
+    border-radius: 50%;
     top: -8px;
     right: -8px;
 }
 
-.closeNavbar {
-    display: none;
-}
-
-#navBtn {
-    display: none;
-}
-
+/* Button styling */
 .navbar-right button {
     background-color: #ff4d4d;
     color: white;
@@ -75,106 +77,212 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
 }
 
 .navbar-right button:hover {
     background-color: #e04e4e;
-    /* Darker red */
 }
 
-@media (max-width:1050px) {
+/* Mobile navigation elements - initially hidden */
+.closeNavbar {
+    display: none;
+}
+
+#navBtn {
+    display: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #49557e;
+}
+
+/* Larger screens */
+@media (min-width: 1051px) {
+    .navBar {
+        display: flex;
+    }
+}
+
+/* Medium screens */
+@media (max-width: 1050px) {
     .navbar .logo {
-        width: 140px;
+        width: 180px;
     }
 
     .navbar-menu {
-        gap: 20px;
-        font-size: 17px;
+        gap: 15px;
+        font-size: 16px;
     }
 
     .navbar-right {
-        gap: 30px;
+        gap: 20px;
     }
 
-    .navbar-right .img {
+    .navbar-right .icon {
         width: 22px;
+        height: 22px;
     }
 
     .navbar-right button {
-        padding: 8px 25px;
-
+        padding: 8px 16px;
+        font-size: 14px;
     }
 }
 
-@media (max-width:900px) {
+/* Smaller screens */
+@media (max-width: 900px) {
+    .navbar {
+        padding: 15px 10px;
+    }
+
     .navbar .logo {
         width: 150px;
     }
 
-    .navbar-right {
-        gap: 13px;
+    .navbar-menu {
+        gap: 12px;
+        font-size: 15px;
     }
 
-    .navbar-right .img {
+    .navbar-right {
+        gap: 15px;
+    }
+
+    .navbar-right .icon {
         width: 20px;
+        height: 20px;
     }
 
     .navbar-right button {
-        padding: 7px 20px;
-        font-size: 10px;
-
+        padding: 7px 14px;
+        font-size: 13px;
     }
 }
 
-@media (max-width:768px) {
-    .navbar-right .icon {
-        width: 18px;
+/* Mobile navigation */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 15px 10px;
     }
 
-    .navbar button {
-        padding: 0.7rem, 0.7rem;
+    .navbar .logo {
+        width: 120px;
     }
 
+    /* Hide desktop menu */
     .navBar {
         position: absolute;
-        top: -500rem;
-        transform: translate(-50%);
+        top: -500px;
         left: 50%;
-        width: 80%;
-        text-align: center;
-        height: max-content;
-        background: rgb(232, 226, 226);
-        border-radius: 1rem;
-        box-shadow: 0 2px 4px rgba(2, 15, 29, 0.904);
-        z-index: 2000;
-        transition: .5s ease-in-out;
+        transform: translateX(-50%);
+        width: 85%;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        transition: all 0.3s ease-in-out;
+        padding: 15px 0;
+        max-height: 400px;
+        overflow-y: auto;
     }
 
-    ul {
-        width: 100%;
-        margin: auto;
-        text-align: center;
-        flex-direction: column;
-    }
-
+    /* Show mobile menu when active */
     .activeNavbar {
-        top: 7rem;
+        top: 70px;
     }
 
+    /* Stack menu items vertically on mobile */
+    .navbar-menu {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+        padding: 15px 0;
+    }
+
+    .navbar-menu a {
+        font-size: 16px;
+        width: 100%;
+        display: block;
+        padding: 8px 0;
+        text-align: center;
+    }
+
+    /* Show close button in mobile menu */
     .closeNavbar {
         display: block;
+        position: absolute;
+        top: 10px;
+        right: 10px;
     }
 
     .navIcon {
-        margin-top: -24rem;
-        margin-left: 10rem;
-        font-size: 2rem;
+        font-size: 24px;
+        color: #49557e;
+        cursor: pointer;
     }
 
+    /* Show hamburger menu button */
     #navBtn {
-        display: block;
+        display: flex;
+        align-items: center;
+        font-size: 24px;
     }
 
+    /* Adjust right side elements */
+    .navbar-right {
+        gap: 15px;
+    }
 
+    .navbar-right .icon {
+        width: 20px;
+        height: 20px;
+    }
 
+    /* User welcome message styling */
+    .flex.items-center.gap-4 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .text-sm.font-medium {
+        display: none;
+        /* Hide on very small screens */
+    }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+    .navbar {
+        padding: 12px 8px;
+    }
+
+    .navbar .logo {
+        width: 100px;
+    }
+
+    .navbar-right {
+        gap: 12px;
+    }
+
+    .navbar-right button {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    /* Hide search icon on very small screens */
+    .navbar-right .icon:first-child {
+        display: none;
+    }
+
+    /* Smaller popup on very small screens */
+    .navBar {
+        width: 90%;
+        max-height: 350px;
+    }
+
+    .activeNavbar {
+        top: 60px;
+    }
 }
