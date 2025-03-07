@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 const dotenv = require("dotenv");
-
 dotenv.config({ path: "./config.env" });
+
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const moment = require("moment-timezone");
 const Booking = require("../models/bookingModel");
@@ -18,6 +18,7 @@ const formatBooking = (booking) => {
       .format("YYYY-MM-DD HH:mm:ss"),
   };
 };
+
 // get all booking
 exports.getAllBooking = catchAsync(async (req, res, next) => {
   const searchQuery = new SearchHelper(Booking.find(), req.query).filterByDate(
@@ -213,10 +214,7 @@ exports.verifyPayment = catchAsync(async (req, res, next) => {
     return next(new AppError("Booking not found", 404));
   }
 
-  res.status(200).json({
-    status: "success",
-    booking,
-  });
+  res.status(200).json({ status: "success", booking });
 });
 
 // In your backend (bookingController.js)

@@ -6,6 +6,7 @@ const routes = express.Router();
 
 // toatlUsers
 routes.get("/totalusers", userController.totalActiveUser);
+routes.get("/findbookedtour", authController.protect, userController.fetchBookedTourByUser)
 
 // forget password and reset password
 // for anyone

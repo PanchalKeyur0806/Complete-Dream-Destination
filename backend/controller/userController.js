@@ -1,3 +1,4 @@
+const Booking = require("../models/bookingModel");
 const User = require("../models/userModel");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
@@ -44,5 +45,22 @@ exports.fetchTourGuides = catchAsync(async (req, res, next) => {
     status: "success",
     length: guides.length,
     data: guides,
+  });
+});
+
+// fetch booked tour of specific users
+exports.fetchBookedTourByUser = catchAsync(async (req, res, next) => {
+  const { _id } = req.user;
+  if (!req.user) {
+    return next(new AppError("Please logged in to access this page", 400));
+  }
+
+  const findBookedTour = await Booking.find({ user: _id });
+  console.log("Find Booked tour......", findBookedTour);
+
+  res.status(200).json({
+    status: "success",
+    length: findBookedTour.length,
+    data: findBookedTour,
   });
 });

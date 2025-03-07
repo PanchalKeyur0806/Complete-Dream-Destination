@@ -66,7 +66,7 @@ bookingSchema.pre("save", async function (next) {
 bookingSchema.pre(/^find/, async function (next) {
   this.populate({
     path: "tour",
-    select: "name",
+    select: "name duration",
   }).populate({
     path: "user",
     select: "name -_id",

@@ -146,7 +146,7 @@ function Navbar({ setShowLogin }) {
       <div className="navbar-right">
         <img src={assets.search_icon} alt="" className="icon" />
         <div className="navbar-search-icon">
-          <Link to="/cart">
+          <Link to="/my-bookings">
             <img src={assets.basket_icon} alt="Cart" className="icon" />
           </Link>
         </div>

@@ -18,6 +18,8 @@ import ResetPassword from "./component/ResetPassword/ResetPassword";
 import ContactForm from "./component/ContactForm/ContactForm";
 import TourItem from "./component/TourItem/TourItem";
 import BookingSuccess from "./component/BookingSuccess/BookingSuccess";
+import BookedTours from "./component/BookedTour/BookedTour";
+
 
 const App = () => {
   const [showLogin, setShowLogin] = useState(false);
@@ -46,6 +48,7 @@ const App = () => {
         )}
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/my-bookings" element={<BookedTours />} />
           <Route path="/booking-success" element={<BookingSuccess />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
           <Route path="/resetpassword/:token" element={<ResetPassword />} />
