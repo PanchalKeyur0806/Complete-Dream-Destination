@@ -1,7 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Fix for default marker icons in Leaflet with React
+// Import marker icons manually since Leaflet's default handling doesn't work well with bundlers
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41]
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 const CreatePackageForm = ({ onSubmit, onCancel }) => {
   const [guides, setGuides] = useState([]);
+  const mapContainerRef = useRef(null);
+  const mapRef = useRef(null);
+  const markerRef = useRef(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -18,7 +39,7 @@ const CreatePackageForm = ({ onSubmit, onCancel }) => {
       coordinates: ["", ""], // [longitude, latitude]
     },
     hotel: "",
-    guides: [], // <-- Fix: Store guides as an array
+    guides: [], // Store guides as an array
     status: true,
   });
 
@@ -40,6 +61,113 @@ const CreatePackageForm = ({ onSubmit, onCancel }) => {
       })
       .catch((error) => console.error("Error fetching guides:", error));
   }, []);
+
+  // Initialize map when component mounts
+  useEffect(() => {
+    if (mapContainerRef.current && !mapRef.current) {
+      try {
+        // Initialize the map with OpenStreetMap
+        mapRef.current = L.map(mapContainerRef.current).setView([28.6139, 77.209], 9); // Default to Delhi, India
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19,
+        }).addTo(mapRef.current);
+
+        // Add zoom controls
+        L.control.zoom({
+          position: 'topright'
+        }).addTo(mapRef.current);
+
+        console.log("Map loaded successfully");
+        setMapLoaded(true);
+
+        // Click event to set marker and update coordinates
+        mapRef.current.on("click", (e) => {
+          const { lat, lng } = e.latlng;
+          console.log(`Selected coordinates: ${lng.toFixed(6)}, ${lat.toFixed(6)}`);
+
+          // Update form data with clicked coordinates
+          // Note: OpenStreetMap uses [lat, lng] but we're storing [lng, lat] to match your original format
+          setFormData((prev) => ({
+            ...prev,
+            location: {
+              ...prev.location,
+              coordinates: [lng.toFixed(6), lat.toFixed(6)],
+            },
+          }));
+
+          // Remove existing marker if it exists
+          if (markerRef.current) {
+            markerRef.current.remove();
+          }
+
+          // Add new marker
+          markerRef.current = L.marker([lat, lng], {
+            draggable: true // Make the marker draggable for fine adjustment
+          })
+            .addTo(mapRef.current)
+            .on('dragend', function (event) {
+              // Update coordinates after dragging
+              const marker = event.target;
+              const position = marker.getLatLng();
+              setFormData((prev) => ({
+                ...prev,
+                location: {
+                  ...prev.location,
+                  coordinates: [position.lng.toFixed(6), position.lat.toFixed(6)],
+                },
+              }));
+            });
+        });
+
+        return () => {
+          if (mapRef.current) {
+            mapRef.current.remove();
+            mapRef.current = null;
+          }
+        };
+      } catch (error) {
+        console.error("Error initializing map:", error);
+        setMapError("Failed to initialize map. Please check your internet connection.");
+      }
+    }
+  }, []);
+
+  // Update marker position when coordinates change directly in the input fields
+  useEffect(() => {
+    const lng = parseFloat(formData.location.coordinates[0]);
+    const lat = parseFloat(formData.location.coordinates[1]);
+
+    if (mapRef.current && mapLoaded && !isNaN(lng) && !isNaN(lat)) {
+      // Remove existing marker if it exists
+      if (markerRef.current) {
+        markerRef.current.remove();
+      }
+
+      // Add new marker at the specified coordinates
+      markerRef.current = L.marker([lat, lng], {
+        draggable: true
+      })
+        .addTo(mapRef.current)
+        .on('dragend', function (event) {
+          // Update coordinates after dragging
+          const marker = event.target;
+          const position = marker.getLatLng();
+          setFormData((prev) => ({
+            ...prev,
+            location: {
+              ...prev.location,
+              coordinates: [position.lng.toFixed(6), position.lat.toFixed(6)],
+            },
+          }));
+        });
+
+      // Center the map on the marker
+      mapRef.current.setView([lat, lng], 10);
+    }
+  }, [formData.location.coordinates, mapLoaded]);
 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -85,10 +213,13 @@ const CreatePackageForm = ({ onSubmit, onCancel }) => {
     }
 
     form.append("startDate", formData.startDate);
-    form.append("endDate", formData.endDate);
+    if (formData.endDate) {
+      form.append("endDate", formData.endDate);
+    }
 
     // Convert location to JSON string
     const locationData = {
+      type: "Point",
       coordinates: [
         Number(formData.location.coordinates[0]),
         Number(formData.location.coordinates[1]),
@@ -121,7 +252,6 @@ const CreatePackageForm = ({ onSubmit, onCancel }) => {
     <div className="form-container">
       <h2>Create Package</h2>
       <form onSubmit={handleSubmit}>
-        {/* Rest of your form JSX remains the same */}
         <div className="form-group">
           <label htmlFor="name">
             Package Name <span className="required">*</span>
@@ -235,20 +365,24 @@ const CreatePackageForm = ({ onSubmit, onCancel }) => {
               required
             />
           </div>
+        </div>
 
-          {/* <div className="form-group">
-            <label htmlFor="endDate">
-              End Date <span className="required">*</span>
-            </label>
-            <input
-              id="endDate"
-              type="date"
-              name="endDate"
-              value={formData.endDate}
-              onChange={handleInputChange}
-              required
-            />
-          </div> */}
+        <div className="form-group">
+          <label>
+            Select Location <span className="required">*</span>
+          </label>
+          <div
+            ref={mapContainerRef}
+            style={{
+              width: "100%",
+              height: "300px",
+              borderRadius: "4px",
+              marginBottom: "15px",
+              border: "1px solid #ccc"
+            }}
+          ></div>
+          {mapError && <div className="error-message" style={{ color: "red", marginBottom: "10px" }}>{mapError}</div>}
+          <p className="map-instruction">Click on the map to select a location (marker is draggable for precise positioning)</p>
         </div>
 
         <div className="form-row">
@@ -297,7 +431,7 @@ const CreatePackageForm = ({ onSubmit, onCancel }) => {
           />
         </div>
 
-        <div>
+        <div className="form-group">
           <label>Select a Guide:</label>
           <select
             onChange={handleGuideSelection}
