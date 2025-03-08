@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const UpdatePackageForm = ({ packageData, onSubmit, onCancel }) => {
   const [guides, setGuides] = useState([]);
+  const mapRef = useRef(null);
+  const leafletMapRef = useRef(null);
+  const markerRef = useRef(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -11,7 +16,6 @@ const UpdatePackageForm = ({ packageData, onSubmit, onCancel }) => {
     price: "",
     priceDiscount: "",
     startDate: "",
-    // endDate removed
     imageCover: null,
     location: {
       type: "Point",
@@ -22,6 +26,7 @@ const UpdatePackageForm = ({ packageData, onSubmit, onCancel }) => {
     status: true,
   });
 
+  // Fetch tour guides
   useEffect(() => {
     fetch("http://localhost:8000/api/users/tour-guide", {
       method: "GET",
@@ -36,16 +41,99 @@ const UpdatePackageForm = ({ packageData, onSubmit, onCancel }) => {
       })
       .then((data) => {
         console.log("Guides fetched:", data);
-        setGuides(data.data); // Assuming API response has { data: guidesArray }
+        setGuides(data.data);
       })
       .catch((error) => console.error("Error fetching guides:", error));
   }, []);
+
+  // Initialize the map only once after component mounts
+  useEffect(() => {
+    // Only initialize if mapRef exists and map isn't already initialized
+    if (mapRef.current && !leafletMapRef.current) {
+      // Default view if no coordinates are provided
+      const defaultLat = 27.7172;
+      const defaultLng = 85.3240; // Default to Kathmandu
+      const defaultZoom = 13;
+
+      // Initialize map
+      leafletMapRef.current = L.map(mapRef.current).setView(
+        [defaultLat, defaultLng],
+        defaultZoom
+      );
+
+      // Add tile layer (OpenStreetMap)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(leafletMapRef.current);
+
+      // Add click event to set marker on map click
+      leafletMapRef.current.on('click', handleMapClick);
+    }
+
+    // Cleanup function
+    return () => {
+      if (leafletMapRef.current) {
+        leafletMapRef.current.off('click');
+        leafletMapRef.current.remove();
+        leafletMapRef.current = null;
+      }
+    };
+  }, []); // Empty dependency array means this runs once on mount
+
+  // Update map when packageData changes
+  useEffect(() => {
+    if (packageData && leafletMapRef.current) {
+      const lng = parseFloat(packageData.location?.coordinates[0]);
+      const lat = parseFloat(packageData.location?.coordinates[1]);
+
+      if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+        // Update form coordinates
+        setFormData(prev => ({
+          ...prev,
+          location: {
+            ...prev.location,
+            coordinates: [lng.toString(), lat.toString()]
+          }
+        }));
+
+        // Center map on package location
+        leafletMapRef.current.setView([lat, lng], 13);
+
+        // Add or update marker
+        if (markerRef.current) {
+          markerRef.current.setLatLng([lat, lng]);
+        } else {
+          markerRef.current = L.marker([lat, lng]).addTo(leafletMapRef.current);
+        }
+      }
+    }
+  }, [packageData]);
+
+  const handleMapClick = (e) => {
+    const { lat, lng } = e.latlng;
+
+    // Update form data coordinates
+    setFormData(prev => ({
+      ...prev,
+      location: {
+        ...prev.location,
+        coordinates: [lng.toString(), lat.toString()]
+      }
+    }));
+
+    // Add or update marker
+    if (markerRef.current) {
+      markerRef.current.setLatLng([lat, lng]);
+    } else {
+      markerRef.current = L.marker([lat, lng]).addTo(leafletMapRef.current);
+    }
+  };
 
   const handleGuideSelection = (e) => {
     const selectedGuideId = e.target.value;
     setFormData((prev) => ({
       ...prev,
-      guides: selectedGuideId ? [selectedGuideId] : [], // Store as an array
+      guides: selectedGuideId ? [selectedGuideId] : [],
     }));
   };
 
@@ -65,14 +153,12 @@ const UpdatePackageForm = ({ packageData, onSubmit, onCancel }) => {
         price: packageData.price || "",
         priceDiscount: packageData.priceDiscount || "",
         startDate: formatDate(packageData.startDate) || "",
-        // endDate removed
         imageCover: null,
         location: packageData.location || {
           type: "Point",
           coordinates: ["", ""],
         },
         hotel: packageData.hotel || "",
-        // Fix: Initialize guides array from packageData
         guides:
           packageData.guides && packageData.guides.length > 0
             ? [packageData.guides[0]._id || packageData.guides[0]]
@@ -93,15 +179,40 @@ const UpdatePackageForm = ({ packageData, onSubmit, onCancel }) => {
     } else if (name === "coordinates[0]" || name === "coordinates[1]") {
       // Updated coordinate handling
       const index = name === "coordinates[0]" ? 0 : 1;
-      setFormData((prev) => ({
-        ...prev,
-        location: {
-          ...prev.location,
-          coordinates: prev.location.coordinates.map((coord, i) =>
-            i === index ? value : coord
-          ),
-        },
-      }));
+
+      // Update form data
+      setFormData((prev) => {
+        const newCoordinates = [...prev.location.coordinates];
+        newCoordinates[index] = value;
+
+        return {
+          ...prev,
+          location: {
+            ...prev.location,
+            coordinates: newCoordinates,
+          },
+        };
+      });
+
+      // Update map marker if both coordinates are valid
+      if (
+        formData.location.coordinates[0] &&
+        formData.location.coordinates[1] &&
+        leafletMapRef.current
+      ) {
+        const lng = index === 0 ? value : formData.location.coordinates[0];
+        const lat = index === 1 ? value : formData.location.coordinates[1];
+
+        if (!isNaN(parseFloat(lng)) && !isNaN(parseFloat(lat))) {
+          leafletMapRef.current.setView([parseFloat(lat), parseFloat(lng)], 13);
+
+          if (markerRef.current) {
+            markerRef.current.setLatLng([parseFloat(lat), parseFloat(lng)]);
+          } else {
+            markerRef.current = L.marker([parseFloat(lat), parseFloat(lng)]).addTo(leafletMapRef.current);
+          }
+        }
+      }
     } else {
       setFormData((prev) => ({
         ...prev,
@@ -118,7 +229,7 @@ const UpdatePackageForm = ({ packageData, onSubmit, onCancel }) => {
     Object.keys(formData).forEach((key) => {
       if (
         key !== "location" &&
-        key !== "guides" && // Handle guides separately
+        key !== "guides" &&
         formData[key] !== null &&
         formData[key] !== ""
       ) {
@@ -126,8 +237,7 @@ const UpdatePackageForm = ({ packageData, onSubmit, onCancel }) => {
       }
     });
 
-    // Handle guides properly - send as a single string value
-    // This fixes the "split is not a function" error
+    // Handle guides properly
     if (formData.guides && formData.guides.length > 0) {
       form.append("guides", formData.guides[0]);
     }
@@ -256,8 +366,14 @@ const UpdatePackageForm = ({ packageData, onSubmit, onCancel }) => {
               required
             />
           </div>
+        </div>
 
-          {/* endDate field completely removed */}
+        {/* Leaflet Map */}
+        <div className="form-group">
+          <label>
+            Location (Click on map to set coordinates) <span className="required">*</span>
+          </label>
+          <div id="map" ref={mapRef} style={{ height: "400px", width: "100%", marginBottom: "20px" }}></div>
         </div>
 
         <div className="form-row">
