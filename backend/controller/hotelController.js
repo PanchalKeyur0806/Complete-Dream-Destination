@@ -63,3 +63,15 @@ exports.getHotel = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+// delete hotels
+exports.deleteHotel = catchAsync( async (req, res, next) => {
+  const {id} = req.params
+  const hotel = await Hotel.findByIdAndDelete(id)
+
+  if(!hotel){
+    return next(new AppError("No Hotel found", 404))
+  }
+
+  res.status(204).json({status: "success", data: null})
+})

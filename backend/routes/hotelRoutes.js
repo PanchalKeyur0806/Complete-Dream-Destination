@@ -14,6 +14,6 @@ routes
   .get(hotelController.getAllHotel)
   .post(hotelController.createHotel);
 
-routes.route("/:id").get(hotelController.getHotel);
+routes.route("/:id").get(hotelController.getHotel).delete(hotelController.deleteHotel)
 
 module.exports = routes;

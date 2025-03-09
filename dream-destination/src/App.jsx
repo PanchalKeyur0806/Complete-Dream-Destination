@@ -19,6 +19,7 @@ import ContactForm from "./component/ContactForm/ContactForm";
 import TourItem from "./component/TourItem/TourItem";
 import BookingSuccess from "./component/BookingSuccess/BookingSuccess";
 import BookedTours from "./component/BookedTour/BookedTour";
+import Hotels from "./Hotel/Hotel";
 import NotFound from "./component/NotFound/NotFound";
 
 
@@ -35,6 +36,7 @@ const App = () => {
     "/user",
     "/contacts",
     "/feedback",
+    "/hotels",
   ];
 
   return (
@@ -50,6 +52,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/my-bookings" element={<BookedTours />} />
+          <Route path="/hotels" element={<Hotels />} />
           <Route path="/booking-success" element={<BookingSuccess />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
           <Route path="/resetpassword/:token" element={<ResetPassword />} />
