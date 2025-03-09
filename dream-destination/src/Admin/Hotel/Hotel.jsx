@@ -30,6 +30,7 @@ const Hotels = () => {
 
     const navigate = useNavigate();
 
+    // Check if user is admin
     useEffect(() => {
         fetch("http://localhost:8000/api/users/me", {
             credentials: "include",
@@ -48,41 +49,43 @@ const Hotels = () => {
             .catch((error) => console.error("Error fetching user data:", error));
     }, [navigate]);
 
+    // Fetch hotels data
+    const fetchHotels = async () => {
+        setLoading(true);
+        setError(null);
+
+        const url = searchQuery
+            ? `http://localhost:8000/api/hotel?search=${encodeURIComponent(
+                searchQuery
+            )}`
+            : "http://localhost:8000/api/hotel";
+
+        try {
+            const response = await fetch(url, {
+                method: "GET",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch hotels");
+            }
+
+            const data = await response.json();
+            setHotels(data.data || data);
+        } catch (error) {
+            console.error("Error fetching hotels:", error);
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Effect to fetch hotels
     useEffect(() => {
         if (!isAdmin && searchQuery.trim() === "") return;
-
-        const fetchHotels = async () => {
-            setLoading(true);
-            setError(null);
-
-            const url = searchQuery
-                ? `http://localhost:8000/api/hotel?search=${encodeURIComponent(
-                    searchQuery
-                )}`
-                : "http://localhost:8000/api/hotel";
-
-            try {
-                const response = await fetch(url, {
-                    method: "GET",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error("Failed to fetch hotels");
-                }
-
-                const data = await response.json();
-                setHotels(data.data || data);
-            } catch (error) {
-                console.error("Error fetching hotels:", error);
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        };
 
         const debounceTimeout = setTimeout(fetchHotels, 500); // Debounce API call for search
 
@@ -163,11 +166,13 @@ const Hotels = () => {
                 return response.json();
             })
             .then((data) => {
+                // Update the hotels state directly by filtering out the deleted hotel
                 setHotels((prevHotels) =>
                     prevHotels.filter((hotel) => hotel._id !== hotelToDelete._id)
                 );
                 alert("Hotel deleted successfully");
                 setShowDeleteModal(false);
+                setHotelToDelete(null);
             })
             .catch((error) => {
                 console.error("Error deleting hotel:", error);
@@ -275,14 +280,15 @@ const Hotels = () => {
                 return response.json();
             })
             .then((data) => {
-                // Add the new hotel to the list
-                setHotels(prevHotels => [...prevHotels, data.data]);
                 alert("Hotel created successfully");
                 handleCloseCreateModal();
+
+                // Refresh the hotel list
+                fetchHotels();
             })
             .catch((error) => {
                 console.error("Error creating hotel:", error);
-                alert("Error creating hotel");
+                alert("Error creating hotel: " + error.message);
             });
     };
 
@@ -390,9 +396,7 @@ const Hotels = () => {
                             <tbody>
                                 {hotels.length > 0 ? (
                                     hotels.map((hotel) => (
-
                                         <tr key={hotel._id}>
-                                            {console.log("All hotel is..........", hotel)}
                                             <td data-label="Hotel ID">{hotel._id}</td>
                                             <td data-label="Name">{hotel.name}</td>
                                             <td data-label="Address">{hotel.address}</td>
