@@ -127,12 +127,17 @@ function User() {
         <div className="brand">Travel Admin</div>
         <ul className="nav-items">
           <li className="nav-item">
+            <Link to="/" className="nav-link">
+              <i className="fas fa-chart-line"></i> Home
+            </Link>
+          </li>
+          <li className="nav-item">
             <Link to="/admin" className="nav-link">
               <i className="fas fa-chart-line"></i> Overview
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/user" className="nav-link">
+            <Link to="/user" className="nav-link active">
               <i className="fas fa-users"></i> Manage Users
             </Link>
           </li>

@@ -43,8 +43,8 @@ const Contact = () => {
 
       const url = searchQuery
         ? `http://localhost:8000/api/contact?search=${encodeURIComponent(
-            searchQuery
-          )}`
+          searchQuery
+        )}`
         : "http://localhost:8000/api/contact";
 
       try {
@@ -131,6 +131,12 @@ const Contact = () => {
         <div className="brand">Travel Admin</div>
         <ul className="nav-items">
           <li className="nav-item">
+            <Link to="/" className="nav-link">
+              <i className="fas fa-chart-line"></i>
+              Home
+            </Link>
+          </li>
+          <li className="nav-item">
             <Link to="/admin" className="nav-link">
               <i className="fas fa-chart-line"></i>
               Overview
@@ -155,7 +161,7 @@ const Contact = () => {
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/feedback" className="nav-link active">
+            <Link to="/feedback" className="nav-link">
               <i className="fas fa-comments"></i>
               Feedback
             </Link>

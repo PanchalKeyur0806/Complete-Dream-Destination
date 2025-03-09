@@ -269,8 +269,7 @@ const Package = () => {
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(
-          `Failed to delete package: ${
-            errorData.message || `Status: ${response.status}`
+          `Failed to delete package: ${errorData.message || `Status: ${response.status}`
           }`
         );
       }
@@ -350,6 +349,11 @@ const Package = () => {
       >
         <div className="brand">Travel Admin</div>
         <ul className="nav-items">
+          <li className="nav-item">
+            <Link to="/" className="nav-link" onClick={closeSidebar}>
+              Home
+            </Link>
+          </li>
           <li className="nav-item">
             <Link to="/admin" className="nav-link" onClick={closeSidebar}>
               Overview

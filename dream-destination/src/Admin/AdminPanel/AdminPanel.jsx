@@ -123,7 +123,12 @@ function AdminPanel() {
         <div className="brand">Travel Admin</div>
         <ul className="nav-items">
           <li className="nav-item">
-            <Link to="/admin" className="nav-link" onClick={closeSidebar}>
+            <Link to="/" className="nav-link" onClick={closeSidebar}>
+              <i className="fas fa-chart-line"></i> Home
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/admin" className="nav-link active" onClick={closeSidebar}>
               <i className="fas fa-chart-line"></i> Overview
             </Link>
           </li>

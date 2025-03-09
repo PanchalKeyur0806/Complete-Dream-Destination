@@ -94,6 +94,12 @@ function Payment() {
         <div className="brand">Travel Admin</div>
         <ul className="nav-items">
           <li className="nav-item">
+            <Link to="/" className="nav-link">
+              <i className="fas fa-chart-line"></i>
+              Home
+            </Link>
+          </li>
+          <li className="nav-item">
             <Link to="/admin" className="nav-link">
               <i className="fas fa-chart-line"></i>
               Overview
@@ -207,13 +213,12 @@ function Payment() {
                       </td>
                       <td data-label="Status" className="cell-content">
                         <span
-                          className={`status-badge ${
-                            booking.status === "paid"
+                          className={`status-badge ${booking.status === "paid"
                               ? "status-paid"
                               : booking.status === "pending"
-                              ? "status-pending"
-                              : "status-refunded"
-                          }`}
+                                ? "status-pending"
+                                : "status-refunded"
+                            }`}
                         >
                           {booking.status}
                         </span>
