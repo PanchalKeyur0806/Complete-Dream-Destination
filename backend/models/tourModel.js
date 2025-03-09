@@ -125,6 +125,8 @@ tourSchema.pre("save", async function (next) {
     return next();
   }
 
+
+
   try {
     // find the neareast hotel
     const neareastHotel = await Hotel.findOne({
@@ -141,9 +143,10 @@ tourSchema.pre("save", async function (next) {
 
     if (neareastHotel) {
       this.hotel = neareastHotel._id; // store hotel object id
+      console.log(`nearest Hotel's id is........... ${neareastHotel} and hotel data is......................... ${this.hotel}`)
     }
   } catch (err) {
-    console.log(err);
+    console.log(`Error is ..........${err}`);
   }
   // go to next middleware
   next();

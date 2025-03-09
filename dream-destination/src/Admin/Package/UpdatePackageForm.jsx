@@ -21,7 +21,6 @@ const UpdatePackageForm = ({ packageData, onSubmit, onCancel }) => {
       type: "Point",
       coordinates: ["", ""],
     },
-    hotel: "",
     guides: [],
     status: true,
   });
@@ -158,7 +157,6 @@ const UpdatePackageForm = ({ packageData, onSubmit, onCancel }) => {
           type: "Point",
           coordinates: ["", ""],
         },
-        hotel: packageData.hotel || "",
         guides:
           packageData.guides && packageData.guides.length > 0
             ? [packageData.guides[0]._id || packageData.guides[0]]

@@ -38,7 +38,6 @@ const CreatePackageForm = ({ onSubmit, onCancel }) => {
       type: "Point",
       coordinates: ["", ""], // [longitude, latitude]
     },
-    hotel: "",
     guides: [], // Store guides as an array
     status: true,
   });
@@ -239,10 +238,6 @@ const CreatePackageForm = ({ onSubmit, onCancel }) => {
       });
     }
 
-    if (formData.hotel) {
-      form.append("hotel", formData.hotel);
-    }
-
     if (typeof onSubmit === "function") {
       onSubmit(form);
     }
@@ -417,18 +412,6 @@ const CreatePackageForm = ({ onSubmit, onCancel }) => {
               required
             />
           </div>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="hotel">Hotel ID</label>
-          <input
-            id="hotel"
-            type="text"
-            name="hotel"
-            value={formData.hotel}
-            onChange={handleInputChange}
-            placeholder="Enter hotel ID"
-          />
         </div>
 
         <div className="form-group">
