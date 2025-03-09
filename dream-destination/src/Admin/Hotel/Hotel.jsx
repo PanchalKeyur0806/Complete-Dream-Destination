@@ -193,6 +193,9 @@ const Hotels = () => {
                         <i className="fas fa-user"></i>
                         Admin
                     </div>
+                    <button className="create-button">
+                        Create hotel
+                    </button>
                 </div>
                 <div className="search-container">
                     <input

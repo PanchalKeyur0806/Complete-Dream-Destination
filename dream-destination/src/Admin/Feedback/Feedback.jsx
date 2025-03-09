@@ -163,15 +163,21 @@ const Feedback = () => {
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/feedback" className="nav-link">
+            <Link to="/feedback" className="nav-link active">
               <i className="fas fa-comments"></i>
               Feedback
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/contacts" className="nav-link active">
+            <Link to="/contacts" className="nav-link">
               <i className="fas fa-comments"></i>
               Contacts
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link to="/hotels" className="nav-link">
+              <i className="fas fa-hotel"></i>
+              Hotels
             </Link>
           </li>
         </ul>

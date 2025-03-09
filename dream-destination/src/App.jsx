@@ -19,7 +19,7 @@ import ContactForm from "./component/ContactForm/ContactForm";
 import TourItem from "./component/TourItem/TourItem";
 import BookingSuccess from "./component/BookingSuccess/BookingSuccess";
 import BookedTours from "./component/BookedTour/BookedTour";
-import Hotels from "./Hotel/Hotel";
+import Hotels from "./Admin/Hotel/Hotel";
 import NotFound from "./component/NotFound/NotFound";
 
 

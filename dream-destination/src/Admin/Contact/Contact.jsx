@@ -170,6 +170,12 @@ const Contact = () => {
               Contact
             </Link>
           </li>
+          <li className="nav-item">
+            <Link to="/hotels" className="nav-link">
+              <i className="fas fa-hotel"></i>
+              Hotels
+            </Link>
+          </li>
         </ul>
       </aside>
 
