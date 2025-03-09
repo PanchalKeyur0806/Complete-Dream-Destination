@@ -163,9 +163,17 @@ const Hotels = () => {
                 if (!response.ok) {
                     throw new Error("Failed to delete hotel");
                 }
-                return response.json();
+                // Check if there's content to parse
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    return response.json();
+                } else {
+                    // If no JSON is returned, just return a success object
+                    return { success: true };
+                }
             })
             .then((data) => {
+                console.log("data is...............", data);
                 // Update the hotels state directly by filtering out the deleted hotel
                 setHotels((prevHotels) =>
                     prevHotels.filter((hotel) => hotel._id !== hotelToDelete._id)
