@@ -1,5 +1,6 @@
 /* Base Navbar Styling */
 .navbar {
+    width: 100vw !important;
     display: flex;
     padding: 20px 15px;
     justify-content: space-between;
