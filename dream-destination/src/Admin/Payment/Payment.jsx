@@ -41,7 +41,7 @@ function Payment() {
 
         // Step 2: Fetch bookings with optional startDate filter
         const bookingsUrl = searchQuery
-          ? `http://localhost:8000/api/bookings?startDate=${searchQuery}`
+          ? `http://localhost:8000/api/bookings?date=${searchQuery}`
           : "http://localhost:8000/api/bookings";
 
         const bookingsResponse = await axios.get(bookingsUrl, {

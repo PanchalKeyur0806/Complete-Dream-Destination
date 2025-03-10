@@ -9,10 +9,14 @@ const SearchHelper = require("../utils/searchHelper");
 
 // GET ALL TOURS
 exports.getTours = catchAsync(async (req, res, next) => {
-  let searchQuery = new SearchHelper(Tour.find(), req.query).searchByField(
-    "name"
-  );
-  console.log(JSON.stringify(req.query, null, 4));
+  const { search, date } = req.query
+  console.log("Extracted directly:", { search, date });
+
+  const params = { search, date };
+
+  let searchQuery = new SearchHelper(Tour.find(), params)
+    .searchByField("name")
+    .filterByDate("startDate");
   const tours = await searchQuery.query;
 
   if (!tours) return next(new AppError("Tours not found", 404));

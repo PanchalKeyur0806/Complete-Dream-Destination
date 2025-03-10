@@ -1,19 +1,45 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "./Header.css";
 import video from "../../assets/video.mp4";
 import { FaLocationDot } from "react-icons/fa6";
 import { CiFilter } from "react-icons/ci";
 
 function Header({ onSearch }) {
-  // Accept onSearch as a prop
-  const [searchTerm, setSearchTerm] = useState("");
+  // State for all search fields
+  const [destination, setDestination] = useState("");
+  const [checkInDate, setCheckInDate] = useState("");
+  const [checkOutDate, setCheckOutDate] = useState("");
 
-  const handleSearch = (e) => {
-    const value = e.target.value;
-    setSearchTerm(value);
+  // Handle destination input change
+  const handleDestinationChange = (e) => {
+    setDestination(e.target.value);
+  };
+
+  // Handle check-in date change
+  const handleCheckInChange = (e) => {
+    setCheckInDate(e.target.value);
+  };
+
+  // Handle check-out date change
+  const handleCheckOutChange = (e) => {
+    setCheckOutDate(e.target.value);
+  };
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Prevent default form submission
+
+    // Create search parameters object with all fields
+    const searchParams = {
+      destination,
+      checkInDate,
+      checkOutDate
+    };
+
+    // Call the onSearch prop with all search parameters
     if (onSearch) {
-      onSearch(value); // Call onSearch only if it exists
+      onSearch(searchParams);
     }
   };
 
@@ -30,7 +56,7 @@ function Header({ onSearch }) {
         </div>
 
         <div className="cardDiv">
-          <form className="d-flex align-items-center justify-content-center gap-5">
+          <form className="d-flex align-items-center justify-content-center gap-5" onSubmit={handleSubmit}>
             <div className="col">
               <label htmlFor="searchInput" className="form-label">
                 Search your destination:
@@ -40,23 +66,33 @@ function Header({ onSearch }) {
                 className="form-control"
                 placeholder="Enter name here..."
                 id="searchInput"
-                value={searchTerm}
-                onChange={handleSearch} // Call handleSearch on input change
+                value={destination}
+                onChange={handleDestinationChange}
               />
             </div>
             <div className="col">
-              <label htmlFor="date">Check in</label>
-              <input type="date" className="form-control" id="date" />
+              <label htmlFor="checkInDate">Check in</label>
+              <input
+                type="date"
+                className="form-control"
+                id="checkInDate"
+                value={checkInDate}
+                onChange={handleCheckInChange}
+              />
             </div>
             <div className="col">
-              <label htmlFor="price">Check out</label>
-              <input type="date" className="form-control" id="date" />
+              <label htmlFor="checkOutDate">Check out</label>
+              <input
+                type="date"
+                className="form-control"
+                id="checkOutDate"
+                value={checkOutDate}
+                onChange={handleCheckOutChange}
+              />
             </div>
             <div className="col">
-              <label htmlFor="price">Guest</label>
-              <input type="number" className="form-control" id="price" />
+              <button type="submit" className="btn btn-primary">Search Tour</button>
             </div>
-            
           </form>
         </div>
       </div>
