@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./AdminPanel.css";
 
 function AdminPanel() {
+  const navigate = useNavigate(); // Add this hook for redirection
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
@@ -29,15 +30,19 @@ function AdminPanel() {
           setIsAdmin(true);
         } else {
           setIsAdmin(false);
+          // Redirect to homepage if not admin
+          navigate('/');
         }
       } catch (error) {
         console.error("Error fetching admin status:", error);
         setIsAdmin(false);
+        // Redirect to homepage on error
+        navigate('/');
       }
     };
 
     fetchAdminStatus();
-  }, []);
+  }, [navigate]); // Add navigate to dependency array
 
   // Fetch total revenue (only if admin)
   useEffect(() => {
@@ -238,9 +243,7 @@ function AdminPanel() {
             </div>
           </div>
         ) : (
-          <p className="error-message">
-            Access denied. You must be an admin to view this page.
-          </p>
+          <div className="loading-message">Checking permissions...</div>
         )}
       </main>
     </>
