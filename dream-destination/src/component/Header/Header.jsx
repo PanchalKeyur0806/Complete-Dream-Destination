@@ -81,16 +81,6 @@ function Header({ onSearch }) {
               />
             </div>
             <div className="col">
-              <label htmlFor="checkOutDate">Check out</label>
-              <input
-                type="date"
-                className="form-control"
-                id="checkOutDate"
-                value={checkOutDate}
-                onChange={handleCheckOutChange}
-              />
-            </div>
-            <div className="col">
               <button type="submit" className="btn btn-primary">Search Tour</button>
             </div>
           </form>

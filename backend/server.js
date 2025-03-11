@@ -21,6 +21,6 @@ mongoose
 
 // listen to server
 port = process.env.PORT || 5000;
-app.listen(port, () => {
-  console.log(`your app is running on http://localhost:${port}`);
+app.listen(port,  "0.0.0.0", () => {
+  console.log(`your app is running on ${port}`);
 });
