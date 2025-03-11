@@ -116,7 +116,7 @@ function Navbar({ setShowLogin }) {
             }}
             className={menu === "mobile-app" ? "active" : ""}
           >
-            Mobile App
+            tours
           </Link>
           <Link
             to="/contact"

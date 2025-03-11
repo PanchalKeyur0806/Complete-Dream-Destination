@@ -1,12 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { SlLocationPin } from "react-icons/sl";
 import { Link } from "react-router-dom";
 
-const TourDisplay = ({ tours = [] }) => {
-  // Ensure tours is always an array
-  if (!Array.isArray(tours)) {
-    return <p>Error: Tours data is not valid.</p>;
-  }
+const TourDisplay = () => {
+  const [tours, setTours] = useState([]);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/api/tours") // Ensure this is the correct backend route
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to fetch tours");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Data is ..........", data.tours)
+        setTours(data.tours)
+      })
+      .catch((err) => setError(err.message));
+  }, []);
+
+  if (error) return <p>Error: {error}</p>;
 
   return (
     <div className="travel-list container grid gap-5">
@@ -26,7 +41,7 @@ const TourDisplay = ({ tours = [] }) => {
                 </span>
                 <div className="fees d-flex justify-content-between mt-2">
                   <div className="price" id="locationIcon">
-                    <p>${price} / per month</p>
+                    <p>₹{price} / per month</p>
                   </div>
                   <Link to={`/tour/${_id}`}>
                     <button className="btn btn Btn">Book Now</button>
