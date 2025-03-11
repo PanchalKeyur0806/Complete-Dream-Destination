@@ -21,7 +21,7 @@ import BookingSuccess from "./component/BookingSuccess/BookingSuccess";
 import BookedTours from "./component/BookedTour/BookedTour";
 import Hotels from "./Admin/Hotel/Hotel";
 import NotFound from "./component/NotFound/NotFound";
-
+import Footer from "./component/Footer/Footer"; // Import Footer
 
 const App = () => {
   const [showLogin, setShowLogin] = useState(false);
@@ -70,6 +70,9 @@ const App = () => {
           <Route path="/tour/:id" element={<TourItem />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+
+        {/* Show Footer only when the /tour route is active */}
+        {location.pathname === "/tour" && <Footer />}
       </div>
     </>
   );

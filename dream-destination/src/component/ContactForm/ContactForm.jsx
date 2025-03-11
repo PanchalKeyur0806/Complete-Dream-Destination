@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./ContactForm.css"; // Make sure to create this CSS file
 import axios from "axios";
+import Footer from "../Footer/Footer"
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -102,59 +103,62 @@ const ContactForm = () => {
   };
 
   return (
-    <div className="form-container">
-      <div className="form-wrapper">
-        <h2 className="form-title">Contact Us</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">Subject</label>
-            <input
-              type="text"
-              name="subject"
-              value={formData.subject}
-              onChange={handleChange}
-              className={`form-input ${errors.subject ? "error" : ""}`}
-              placeholder="Enter subject (4-40 characters)"
-            />
-            {errors.subject && (
-              <p className="error-message">{errors.subject}</p>
-            )}
-          </div>
+    <>
+      <div className="form-container">
+        <div className="form-wrapper">
+          <h2 className="form-title">Contact Us</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label className="form-label">Subject</label>
+              <input
+                type="text"
+                name="subject"
+                value={formData.subject}
+                onChange={handleChange}
+                className={`form-input ${errors.subject ? "error" : ""}`}
+                placeholder="Enter subject (4-40 characters)"
+              />
+              {errors.subject && (
+                <p className="error-message">{errors.subject}</p>
+              )}
+            </div>
 
-          <div className="form-group">
-            <label className="form-label">Message</label>
-            <textarea
-              name="message"
-              value={formData.message}
-              onChange={handleChange}
-              className={`form-textarea ${errors.message ? "error" : ""}`}
-              placeholder="Enter your message"
-            />
-            {errors.message && (
-              <p className="error-message">{errors.message}</p>
-            )}
-          </div>
+            <div className="form-group">
+              <label className="form-label">Message</label>
+              <textarea
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                className={`form-textarea ${errors.message ? "error" : ""}`}
+                placeholder="Enter your message"
+              />
+              {errors.message && (
+                <p className="error-message">{errors.message}</p>
+              )}
+            </div>
 
-          <button type="submit" className="submit-button">
-            Submit
-          </button>
-        </form>
+            <button type="submit" className="submit-button">
+              Submit
+            </button>
+          </form>
 
-        {submitStatus === "success" && (
-          <div className="success-message">
-            <p>Success!</p>
-            <p>Your message has been sent successfully!</p>
-          </div>
-        )}
+          {submitStatus === "success" && (
+            <div className="success-message">
+              <p>Success!</p>
+              <p>Your message has been sent successfully!</p>
+            </div>
+          )}
 
-        {submitStatus === "error" && (
-          <div className="error-alert">
-            <p>Error</p>
-            <p>{errorMessage}</p>
-          </div>
-        )}
+          {submitStatus === "error" && (
+            <div className="error-alert">
+              <p>Error</p>
+              <p>{errorMessage}</p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 };
 
