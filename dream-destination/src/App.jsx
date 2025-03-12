@@ -21,6 +21,7 @@ import BookingSuccess from "./component/BookingSuccess/BookingSuccess";
 import BookedTours from "./component/BookedTour/BookedTour";
 import Hotels from "./Admin/Hotel/Hotel";
 import NotFound from "./component/NotFound/NotFound";
+import AboutUs from "./component/Aboutus/AboutUs";
 import Footer from "./component/Footer/Footer"; // Import Footer
 
 const App = () => {
@@ -51,6 +52,7 @@ const App = () => {
         )}
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/my-bookings" element={<BookedTours />} />
           <Route path="/hotels" element={<Hotels />} />
           <Route path="/booking-success" element={<BookingSuccess />} />

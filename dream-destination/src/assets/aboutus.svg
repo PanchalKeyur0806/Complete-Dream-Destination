@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e0f7fa" />
+      <stop offset="100%" stop-color="#b3e5fc" />
+    </linearGradient>
+    <linearGradient id="sunGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffeb3b" />
+      <stop offset="100%" stop-color="#ffa000" />
+    </linearGradient>
+    <linearGradient id="mountainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5d4037" />
+      <stop offset="100%" stop-color="#3e2723" />
+    </linearGradient>
+    <linearGradient id="mountain2Gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#795548" />
+      <stop offset="100%" stop-color="#4e342e" />
+    </linearGradient>
+    <linearGradient id="waterGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4fc3f7" />
+      <stop offset="100%" stop-color="#0288d1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="500" fill="url(#bgGradient)" />
+  
+  <!-- Sun -->
+  <circle cx="650" cy="120" r="60" fill="url(#sunGradient)" />
+  
+  <!-- Mountains in background -->
+  <path d="M0 300 L200 150 L400 280 L600 180 L800 300 L800 500 L0 500 Z" fill="url(#mountainGradient)" />
+  
+  <!-- Mountains in foreground -->
+  <path d="M-100 350 L150 200 L300 320 L450 220 L600 320 L800 200 L900 350 L900 500 L-100 500 Z" fill="url(#mountain2Gradient)" />
+  
+  <!-- Water/ocean -->
+  <path d="M0 380 Q200 360, 400 380 Q600 400, 800 380 L800 500 L0 500 Z" fill="url(#waterGradient)" />
+  
+  <!-- Small boat on water -->
+  <path d="M580 390 L600 390 L610 400 L570 400 Z" fill="#d7ccc8" />
+  <path d="M585 380 L595 380 L595 390 L585 390 Z" fill="#8d6e63" />
+  
+  <!-- Airplane -->
+  <g transform="translate(220, 150) rotate(-15)">
+    <path d="M0 0 L80 20 L70 30 L20 20 Z" fill="#eceff1" />
+    <path d="M30 15 L50 5 L70 15 Z" fill="#cfd8dc" />
+    <path d="M50 18 L50 30 L60 30 L60 20 Z" fill="#cfd8dc" />
+  </g>
+  
+  <!-- Palm tree -->
+  <g transform="translate(100, 380)">
+    <rect x="-5" y="-60" width="10" height="60" fill="#5d4037" />
+    <path d="M0 -60 C-30 -70, -40 -90, -20 -100 C-40 -95, -60 -110, -30 -120 M0 -60 C30 -70, 40 -90, 20 -100 C40 -95, 60 -110, 30 -120" fill="#43a047" />
+  </g>
+  
+  <!-- Company Name -->
+  <text x="400" y="80" font-family="'Poppins', sans-serif" font-size="40" font-weight="bold" text-anchor="middle" fill="#1565c0">DREAM DESTINATION</text>
+  
+  <!-- Tagline -->
+  <text x="400" y="120" font-family="'Open Sans', sans-serif" font-size="16" text-anchor="middle" fill="#0d47a1">Turning travel dreams into unforgettable realities since 2015</text>
+  
+  <!-- Text Box -->
+  <rect x="150" y="400" width="500" height="80" rx="5" fill="rgba(255, 255, 255, 0.8)" />
+  <text x="400" y="430" font-family="'Open Sans', sans-serif" font-size="12" text-anchor="middle" fill="#333">
+    <tspan x="400" dy="0">A trusted travel partner for thousands of adventurers worldwide.</tspan>
+    <tspan x="400" dy="20">Exceptional service and authentic experiences for every journey.</tspan>
+  </text>
+  
+  <!-- Compass logo element -->
+  <g transform="translate(400, 230)">
+    <circle cx="0" cy="0" r="40" fill="white" fill-opacity="0.9" />
+    <circle cx="0" cy="0" r="38" fill="none" stroke="#1565c0" stroke-width="2" />
+    <path d="M0 -30 L0 -38 M0 30 L0 38 M-30 0 L-38 0 M30 0 L38 0" stroke="#1565c0" stroke-width="2" />
+    <path d="M0 0 L0 -25" stroke="#f44336" stroke-width="2" />
+    <path d="M0 0 L20 15" stroke="#1565c0" stroke-width="2" />
+    <circle cx="0" cy="0" r="5" fill="#1565c0" />
+  </g>
+</svg>
