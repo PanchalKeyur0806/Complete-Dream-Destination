@@ -99,14 +99,14 @@ function Navbar({ setShowLogin }) {
             {userData?.role === "admin" ? "Admin" : "Home"}
           </Link>
           <Link
-            to="/explore"
+            to="/aboutus"
             onClick={() => {
               setMenu("ExploreMenu");
               removeNavbar();
             }}
             className={menu === "menu" ? "active" : ""}
           >
-            Explore Menu
+            About Us
           </Link>
           <Link
             to="/tour"
