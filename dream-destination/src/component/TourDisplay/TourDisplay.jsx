@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { SlLocationPin } from "react-icons/sl";
 import { Link, useLocation } from "react-router-dom";
-import "./TourDisplay.css"; // Make sure your CSS file is properly imported
+import "./TourDisplay.css";
 
 const TourDisplay = ({ tours: propTours = null }) => {
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); // Actual search query to send to API
   const location = useLocation();
 
   // Determine if this is a standalone page or being used as a component
@@ -23,13 +24,19 @@ const TourDisplay = ({ tours: propTours = null }) => {
 
     // Otherwise fetch tours (when used as a standalone page)
     if (isStandalonePage || propTours === null) {
-      fetchTours();
+      fetchTours(searchQuery);
     }
-  }, [propTours, isStandalonePage]);
+  }, [propTours, isStandalonePage, searchQuery]); // Using searchQuery instead of searchTerm
 
-  const fetchTours = () => {
+  const fetchTours = (search = "") => {
     setLoading(true);
-    fetch("http://localhost:8000/api/tours")
+
+    // Build the URL based on whether a search term exists
+    const url = search
+      ? `http://localhost:8000/api/tours?search=${encodeURIComponent(search)}`
+      : "http://localhost:8000/api/tours";
+
+    fetch(url)
       .then((res) => {
         if (!res.ok) {
           throw new Error("Failed to fetch tours");
@@ -56,13 +63,17 @@ const TourDisplay = ({ tours: propTours = null }) => {
     setSearchTerm(e.target.value);
   };
 
-  // Filter tours based on search term
-  const filteredTours = searchTerm
-    ? tours.filter(tour =>
-      tour.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (tour.location && tour.location.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
-    : tours;
+  // Handle search submission on key press (Enter)
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      setSearchQuery(searchTerm);
+    }
+  };
+
+  // Handle search on input blur (when user clicks away)
+  const handleBlur = () => {
+    setSearchQuery(searchTerm);
+  };
 
   if (loading) return <div className="loading">Loading tours...</div>;
   if (error) return <div className="error">Error: {error}</div>;
@@ -76,9 +87,11 @@ const TourDisplay = ({ tours: propTours = null }) => {
           <div className="search-container">
             <input
               type="text"
-              placeholder="Search tours by name or location..."
+              placeholder="Search tours by name..."
               value={searchTerm}
               onChange={handleSearch}
+              onKeyPress={handleKeyPress}
+              onBlur={handleBlur}
               className="search-input"
             />
           </div>
@@ -86,8 +99,8 @@ const TourDisplay = ({ tours: propTours = null }) => {
       )}
 
       <div className="travel-list container grid gap-5">
-        {filteredTours.length > 0 ? (
-          filteredTours.map(({ _id, imageCover, name, price }, index) => (
+        {tours.length > 0 ? (
+          tours.map(({ _id, imageCover, name, price }, index) => (
             <div key={`${_id}-${index}`} className="destination">
               <div className="card">
                 <img
