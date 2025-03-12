@@ -1,28 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './AboutUs.css';
 import { MapPin, Clock, Phone, ShieldCheck, UserCheck, ThumbsUp, Mail, Facebook, Instagram, Twitter } from 'lucide-react';
 
 const AboutUs = () => {
-    const testimonials = [
-        {
-            name: "Sarah Johnson",
-            trip: "Bali Adventure Tour",
-            image: "/api/placeholder/200/200",
-            text: "Dream Destination made our honeymoon unforgettable! Their attention to detail and personalized itinerary exceeded our expectations. We didn't have to worry about a thing!"
-        },
-        {
-            name: "Michael Chen",
-            trip: "European Discovery",
-            image: "/api/placeholder/200/200",
-            text: "From planning to execution, Dream Destination delivered excellence. Their local insights helped us experience Europe like locals, not tourists. I've already booked my next trip with them!"
-        },
-        {
-            name: "Priya Patel",
-            trip: "Japan Cultural Immersion",
-            image: "/api/placeholder/200/200",
-            text: "As a solo traveler, I was nervous about visiting Japan. Dream Destination arranged everything perfectly and checked in throughout my journey. Their 24/7 support gave me peace of mind."
-        }
-    ];
+    const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchReviews = async () => {
+            try {
+                const response = await fetch('http://localhost:8000/api/reviews');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch reviews');
+                }
+                const data = await response.json();
+                console.log("Data is .........", data)
+
+                // Filter for only 5-star reviews
+                const fiveStarReviews = data.data.filter(review => review.rating === 5);
+                console.log("Filtered reviews is .......", fiveStarReviews)
+
+                // Take only 3 reviews
+                const topThreeReviews = fiveStarReviews.slice(0, 3);
+
+                setReviews(topThreeReviews);
+                setLoading(false);
+            } catch (err) {
+                setError(err.message);
+                setLoading(false);
+            }
+        };
+
+        fetchReviews();
+    }, []);
 
     const services = [
         { title: "Customized Travel Packages", description: "Tailor-made itineraries designed around your preferences, budget, and travel style." },
@@ -145,24 +156,34 @@ const AboutUs = () => {
                 </div>
             </section>
 
-            {/* Testimonials Section */}
+            {/* Testimonials Section - Now with API Data Only */}
             <section className="testimonials-section container">
-                <h2>What Our Travelers Say</h2>
+                <h2>Our Top-Rated Reviews</h2>
                 <div className="separator"></div>
-                <div className="testimonials-grid">
-                    {testimonials.map((testimonial, index) => (
-                        <div className="testimonial-card" key={index}>
-                            <div className="testimonial-header">
-                                <img src={testimonial.image} alt={testimonial.name} />
-                                <div>
-                                    <h3>{testimonial.name}</h3>
-                                    <p>{testimonial.trip}</p>
+                {loading ? (
+                    <p>Loading reviews...</p>
+                ) : error ? (
+                    <p>Unable to load reviews at this time. Please try again later.</p>
+                ) : (
+                    <div className="testimonials-grid">
+                        {reviews.length > 0 ? (
+                            reviews.map((review, index) => (
+                                <div className="testimonial-card" key={index}>
+                                    <div className="testimonial-header">
+                                        <div>
+                                            <h3>{review.user?.name || "Happy Traveler"}</h3>
+                                            <p>{review.tour?.name || "Amazing Tour"}</p>
+                                            <div className="rating">★★★★★</div>
+                                        </div>
+                                    </div>
+                                    <p className="testimonial-text">"{review.review}"</p>
                                 </div>
-                            </div>
-                            <p className="testimonial-text">"{testimonial.text}"</p>
-                        </div>
-                    ))}
-                </div>
+                            ))
+                        ) : (
+                            <p>No 5-star reviews available at the moment. Check back soon!</p>
+                        )}
+                    </div>
+                )}
             </section>
 
             {/* Contact Section - Modified to show only contact info, no form */}

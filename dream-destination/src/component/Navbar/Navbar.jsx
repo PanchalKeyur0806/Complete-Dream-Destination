@@ -81,6 +81,8 @@ function Navbar({ setShowLogin }) {
     }
   };
 
+  const isAdmin = userData?.role === "admin";
+
   return (
     <div className="navbar">
       <Link to="/">
@@ -88,46 +90,68 @@ function Navbar({ setShowLogin }) {
       </Link>
       <div className={active}>
         <ul className="navbar-menu mt-3">
+          {/* Admin Dashboard Link - Only visible to admins */}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              onClick={() => {
+                setMenu("admin");
+                removeNavbar();
+              }}
+              className={menu === "admin" ? "active" : ""}
+            >
+              Admin
+            </Link>
+          )}
+
+          {/* Home link for everyone */}
           <Link
-            to={userData?.role === "admin" ? "/admin" : "/"}
+            to="/"
             onClick={() => {
               setMenu("home");
               removeNavbar();
             }}
             className={menu === "home" ? "active" : ""}
           >
-            {userData?.role === "admin" ? "Admin" : "Home"}
+            Home
           </Link>
+
+          {/* About Us link for everyone */}
           <Link
             to="/aboutus"
             onClick={() => {
-              setMenu("ExploreMenu");
+              setMenu("about");
               removeNavbar();
             }}
-            className={menu === "menu" ? "active" : ""}
+            className={menu === "about" ? "active" : ""}
           >
             About Us
           </Link>
+
+          {/* Tours link for everyone */}
           <Link
             to="/tour"
             onClick={() => {
-              setMenu("mobile-app");
+              setMenu("tours");
               removeNavbar();
             }}
-            className={menu === "mobile-app" ? "active" : ""}
+            className={menu === "tours" ? "active" : ""}
           >
-            tours
+            Tours
           </Link>
+
+          {/* Contact Us link for everyone */}
           <Link
             to="/contact"
             onClick={() => {
-              setMenu("contact-us");
+              setMenu("contact");
               removeNavbar();
             }}
-            className={menu === "contact-us" ? "active" : ""}
+            className={menu === "contact" ? "active" : ""}
           >
             Contact Us
           </Link>
+
           <div onClick={removeNavbar} className="closeNavbar">
             <IoIosCloseCircle className="navIcon" />
           </div>
